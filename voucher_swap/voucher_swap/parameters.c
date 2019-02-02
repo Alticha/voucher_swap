@@ -104,6 +104,6 @@ parameters_init() {
         }
     }
     initialize_computed_offsets();
-    printf("[IMPORTANT] About to exploit. If this doesn't work, %s \"%s\" to bsd_info_0x368[] or open a new issue on github.com/alticha/voucher_swap.", OFFSET(task, bsd_info) == 0x368 ? "remove" : "add", platform.machine);
+    printf("[IMPORTANT] About to exploit. If this doesn't work, %s \"%s\" to bsd_info_0x368[] or open a new issue on github.com/alticha/voucher_swap.\n", OFFSET(task, bsd_info) == 0x368 ? "remove" : "add", platform.machine);
     return true;
 }
