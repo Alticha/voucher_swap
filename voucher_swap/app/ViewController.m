@@ -31,7 +31,7 @@
     for (int i = 0; i < 256; i++) {
         char chr = u.machine[i];
         long num = chr - '0';
-        if (num == -4 || num == 0) {
+        if (num == -4 || chr == 0) {
             break;
         }
         if (num >= 0 && num <= 9) {
