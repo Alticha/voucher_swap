@@ -107,6 +107,9 @@ static uint64_t SANDBOX = 0;
         char *buffer = (char *)malloc(length);
         if (sysctl((int[]){ CTL_KERN, KERN_PROCARGS2, pid }, 3, buffer, &size, NULL, 0) == 0) {
             NSString *executable = [NSString stringWithCString:(buffer+sizeof(int)) encoding:NSUTF8StringEncoding];
+            if ([executable isEqual:name]) {
+                return info[i].kp_proc.p_pid;
+            }
             if ([[executable lastPathComponent] isEqual:name]) {
                 return info[i].kp_proc.p_pid;
             }
