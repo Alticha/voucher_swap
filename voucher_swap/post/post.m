@@ -5,7 +5,6 @@
 #import "offsets.h"
 #include <sys/sysctl.h>
 #include "parameters.h"
-#include "voucher_swap.h"
 
 @implementation Post
 static uint64_t SANDBOX = 0;
