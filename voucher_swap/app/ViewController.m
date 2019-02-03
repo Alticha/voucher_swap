@@ -42,9 +42,9 @@
     read[ii + 1] = 0;
     int digits = atoi(read);
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        CHECK(digits, 6);
-    } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         CHECK(digits, 8);
+    } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        CHECK(digits, 6);
     }
     voucher_swap();
     if (!MACH_PORT_VALID(kernel_task_port)) {
