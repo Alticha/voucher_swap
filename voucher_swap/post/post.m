@@ -71,7 +71,7 @@ static uint64_t SANDBOX = 0;
 }
 
 - (bool)isSandboxed {
-    return kernel_read64(kernel_read64(kernel_read64([self selfproc] + off_p_ucred) + off_ucred_cr_label) + off_sandbox_slot) == 0 ? true : false;
+    return kernel_read64(kernel_read64(kernel_read64([self selfproc] + off_p_ucred) + off_ucred_cr_label) + off_sandbox_slot) == 0;
 }
 
 - (uint64_t)selfproc {
