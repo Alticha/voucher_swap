@@ -7,6 +7,7 @@
 #define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 
+unsigned off_p_next = 0x8; // proc_t::p_next
 unsigned off_p_pid = 0x60; // proc_t::p_pid
 unsigned off_task = 0x10; // proc_t::task
 unsigned off_p_uid = 0x28; // proc_t::p_uid
