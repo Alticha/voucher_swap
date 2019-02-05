@@ -73,28 +73,34 @@
         assert(false);
      }
      */
+    // Used later
     Post *post = [[Post alloc] init];
+    // For respringing
     static int progress = 0;
     if (progress == 2) {
         [post respring];
         return;
     }
     if (progress == 1) {
-	return;
+        return;
     }
     progress++;
+    // Run voucher_swap
     bool success = [self voucher_swap];
     if (success) {
-        sleep(1);
+        // Post exploitation
         [post go];
         [sender setTitle:@"respring" forState:UIControlStateNormal];
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"success" message:[NSString stringWithFormat:@"tfp0: %i\nkernel base: 0x%llx\nuid: %i\ngid: %i\nunsandboxed: %i", kernel_task_port, kernel_slide + 0xFFFFFFF007004000, getuid(), getgid(), [post isSandboxed]] preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"done" style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];
+        // Become mobile ([U/G]ID: 501) so Xcode can stop the process
+        [post mobile];
+        progress++;
     } else {
+        // Failed
         [self failure];
     }
-    progress++;
 }
 
 - (void)viewDidLoad {
