@@ -139,7 +139,7 @@ static uint64_t kernel_base = 0;
 }
 
 - (uint64_t)proc_for_pid:(pid_t)pid {
-    if (pid == getgid()) {
+    if (pid == getuid()) {
         return [self selfproc];
     } else if (pid == 0) {
         return [self kernproc];
