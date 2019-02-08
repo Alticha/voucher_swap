@@ -10,7 +10,7 @@
 		551FBBDB21C2D297005F5DC9 /* kernel_alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 551FBBDA21C2D297005F5DC9 /* kernel_alloc.c */; };
 		551FBBDE21C2E174005F5DC9 /* parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = 551FBBDD21C2E174005F5DC9 /* parameters.c */; };
 		5581FD0C21D45753009FC879 /* kernel_call.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581FD0B21D45753009FC879 /* kernel_call.c */; };
-		5581FD0F21D459C7009FC879 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581FD0E21D459C7009FC879 /* log.c */; };
+		5581FD0F21D459C7009FC879 /* log.m in Sources */ = {isa = PBXBuildFile; fileRef = 5581FD0E21D459C7009FC879 /* log.m */; };
 		5581FD1221D5BEB5009FC879 /* platform.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581FD1121D5BEB5009FC879 /* platform.c */; };
 		5581FD1921D690FB009FC879 /* user_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581FD1821D690FB009FC879 /* user_client.c */; };
 		5581FD1C21D699A1009FC879 /* pac.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581FD1B21D699A1009FC879 /* pac.c */; };
@@ -27,6 +27,7 @@
 		55F5FC0121BB2DED00F3AB28 /* voucher_swap.c in Sources */ = {isa = PBXBuildFile; fileRef = 55F5FC0021BB2DED00F3AB28 /* voucher_swap.c */; };
 		E02DFA8D2203CE6B00AE2324 /* post.m in Sources */ = {isa = PBXBuildFile; fileRef = E02DFA8A2203CE6B00AE2324 /* post.m */; };
 		E02DFA8E2203CE6B00AE2324 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = E02DFA8B2203CE6B00AE2324 /* offsets.m */; };
+		E06F1A7B220CFB4600E732A9 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = E06F1A79220CFB4600E732A9 /* patchfinder64.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,7 +39,7 @@
 		5581FD0A21D45753009FC879 /* kernel_call.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kernel_call.h; sourceTree = "<group>"; };
 		5581FD0B21D45753009FC879 /* kernel_call.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = kernel_call.c; sourceTree = "<group>"; };
 		5581FD0D21D459C7009FC879 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
-		5581FD0E21D459C7009FC879 /* log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
+		5581FD0E21D459C7009FC879 /* log.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = log.m; sourceTree = "<group>"; };
 		5581FD1021D5BEB5009FC879 /* platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
 		5581FD1121D5BEB5009FC879 /* platform.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = platform.c; sourceTree = "<group>"; };
 		5581FD1721D690FB009FC879 /* user_client.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_client.h; sourceTree = "<group>"; };
@@ -71,6 +72,8 @@
 		E02DFA882203CE6B00AE2324 /* offsets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		E02DFA8A2203CE6B00AE2324 /* post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = post.m; sourceTree = "<group>"; };
 		E02DFA8B2203CE6B00AE2324 /* offsets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = offsets.m; sourceTree = "<group>"; };
+		E06F1A79220CFB4600E732A9 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
+		E06F1A7A220CFB4600E732A9 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,7 +158,7 @@
 				5581FD2121D6B8BC009FC879 /* kernel_slide.h */,
 				5581FD2221D6B8BC009FC879 /* kernel_slide.c */,
 				5581FD0D21D459C7009FC879 /* log.h */,
-				5581FD0E21D459C7009FC879 /* log.c */,
+				5581FD0E21D459C7009FC879 /* log.m */,
 				551FBBDC21C2E174005F5DC9 /* parameters.h */,
 				551FBBDD21C2E174005F5DC9 /* parameters.c */,
 				5581FD1021D5BEB5009FC879 /* platform.h */,
@@ -175,6 +178,8 @@
 				E02DFA8A2203CE6B00AE2324 /* post.m */,
 				E02DFA882203CE6B00AE2324 /* offsets.h */,
 				E02DFA8B2203CE6B00AE2324 /* offsets.m */,
+				E06F1A7A220CFB4600E732A9 /* patchfinder64.h */,
+				E06F1A79220CFB4600E732A9 /* patchfinder64.c */,
 			);
 			path = post;
 			sourceTree = "<group>";
@@ -252,13 +257,14 @@
 				5581FD2321D6B8BC009FC879 /* kernel_slide.c in Sources */,
 				55F5FBEE21BB2C3200F3AB28 /* ViewController.m in Sources */,
 				558AB70521C9C78200FA1594 /* kernel_memory.c in Sources */,
-				5581FD0F21D459C7009FC879 /* log.c in Sources */,
+				5581FD0F21D459C7009FC879 /* log.m in Sources */,
 				5581FD2621D6DBB8009FC879 /* platform_match.c in Sources */,
 				551FBBDE21C2E174005F5DC9 /* parameters.c in Sources */,
 				5581FD1C21D699A1009FC879 /* pac.c in Sources */,
 				E02DFA8E2203CE6B00AE2324 /* offsets.m in Sources */,
 				E02DFA8D2203CE6B00AE2324 /* post.m in Sources */,
 				55F5FC0121BB2DED00F3AB28 /* voucher_swap.c in Sources */,
+				E06F1A7B220CFB4600E732A9 /* patchfinder64.c in Sources */,
 				5581FD1221D5BEB5009FC879 /* platform.c in Sources */,
 				5581FD2021D6B588009FC879 /* kc_parameters.c in Sources */,
 				5581FD1921D690FB009FC879 /* user_client.c in Sources */,
