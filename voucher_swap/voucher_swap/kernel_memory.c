@@ -13,20 +13,37 @@
 
 bool
 kernel_read(uint64_t address, void *data, size_t size) {
-	mach_vm_size_t size_out;
-	kern_return_t kr = mach_vm_read_overwrite(kernel_task_port, address,
-			size, (mach_vm_address_t) data, &size_out);
-	if (kr != KERN_SUCCESS) {
-		ERROR("%s returned %d: %s", "mach_vm_read_overwrite", kr, mach_error_string(kr));
-		ERROR("could not %s address 0x%016llx", "read", address);
-		return false;
-	}
-	if (size_out != size) {
-		ERROR("partial read of address 0x%016llx: %llu of %zu bytes",
-				address, size_out, size);
-		return false;
-	}
-	return true;
+    mach_vm_size_t size_out;
+    kern_return_t kr = mach_vm_read_overwrite(kernel_task_port, address,
+                                              size, (mach_vm_address_t) data, &size_out);
+    if (kr != KERN_SUCCESS) {
+        ERROR("%s returned %d: %s", "mach_vm_read_overwrite", kr, mach_error_string(kr));
+        ERROR("could not %s address 0x%016llx", "read", address);
+        return false;
+    }
+    if (size_out != size) {
+        ERROR("partial read of address 0x%016llx: %llu of %zu bytes",
+              address, size_out, size);
+        return false;
+    }
+    return true;
+}
+size_t kread(uint64_t where, void *p, size_t size) {
+    int rv;
+    size_t offset = 0;
+    while (offset < size) {
+        mach_vm_size_t sz, chunk = 2048;
+        if (chunk > size - offset) {
+            chunk = size - offset;
+        }
+        rv = mach_vm_read_overwrite(kernel_task_port, where + offset, chunk, (mach_vm_address_t)p + offset, &sz);
+        if (rv || sz == 0) {
+            printf("[*] error on kread(0x%016llx)\n", (offset + where));
+            break;
+        }
+        offset += sz;
+    }
+    return offset;
 }
 
 bool
