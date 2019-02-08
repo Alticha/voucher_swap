@@ -108,10 +108,12 @@ static int progress = 0;
     //[self log:[[@"[*] Device: " stringByAppendingString:[NSString stringWithCString:u.machine encoding:NSUTF8StringEncoding]] stringByAppendingString:@"\n"]];
     bool is16K = [post is16K];
     if (!is16K) {
-        [self log:[NSString stringWithFormat:@"[E] %s is unsupported.\n", u.machine]];
+        [self log:[NSString stringWithFormat:@"[E] %s is unsupported\n", u.machine]];
         [_exploitBtn setBgDisabledColour];
         return;
     }
+    [self log:[NSString stringWithFormat:@"[+] This is a 16K device\n"]];
+    [self log:[NSString stringWithFormat:@"[+] %s IS supported\n", u.machine]];
     [self log:@"[+] Ready!\n"];
 }
 
