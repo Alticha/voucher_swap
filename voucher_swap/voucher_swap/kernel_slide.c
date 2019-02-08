@@ -77,7 +77,7 @@ kernel_slide_init_with_kernel_image_address(uint64_t address) {
 		bool found = is_kernel_base(base);
 		if (found) {
 			kernel_slide = base - STATIC_ADDRESS(kernel_base);
-			DEBUG_TRACE(1, "found kernel slide 0x%016llx", kernel_slide);
+			//DEBUG_TRACE(1, "found kernel slide 0x%016llx", kernel_slide);
 			return true;
 		}
 		base -= kernel_slide_step;
