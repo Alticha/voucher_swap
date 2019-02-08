@@ -119,16 +119,16 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     int digits = [self modelDigitsBeforeComma];
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         if (digits < 8) {
-            INFO("This is a 4K device");
+            //INFO("This is a 4K device");
             return true;
         }
     } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         if (digits < 6) {
-            INFO("This is a 4K device");
+            //INFO("This is a 4K device");
             return true;
         }
     }
-    INFO("This is a 16K device");
+    //INFO("This is a 16K device");
     return false;
 }
 
@@ -143,16 +143,16 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     int digits = [self modelDigitsBeforeComma];
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         if (digits == 11) {
-            INFO("This is an A12 device");
+            //INFO("This is an A12 device");
             return true;
         }
     } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         if (digits == 8) {
-            INFO("This is an A12 device");
+            //INFO("This is an A12 device");
             return true;
         }
     }
-    INFO("This isn't an A12 device");
+    //INFO("This isn't an A12 device");
     return false;
 }
 
