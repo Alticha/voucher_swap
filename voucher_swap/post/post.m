@@ -231,6 +231,12 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 // Sandbox //
 
 - (bool)isSandboxed {
+    if (!MACH_PORT_VALID(kernel_task_port)) {
+        [[NSFileManager defaultManager] createFileAtPath:@"/var/TESTF" contents:nil attributes:nil];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:@"/var/TESTF"]) return true;
+        [[NSFileManager defaultManager] removeItemAtPath:@"/var/TESTF" error:nil];
+        return false;
+    }
     return kernel_read64(kernel_read64(kernel_read64([self selfproc] + off_p_ucred) + off_ucred_cr_label) + off_sandbox_slot) != 0;
 }
 
