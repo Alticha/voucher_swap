@@ -1,22 +1,16 @@
-//
-//  ViewController.m
-//  voucher_swap
-//
-//  Created by Brandon Azad on 12/7/18.
-//  Copyright © 2018 Brandon Azad. All rights reserved.
-//
-
 #import "ViewController.h"
 #import "kernel_slide.h"
 #import "voucher_swap.h"
 #import "kernel_memory.h"
 #include "post.h"
+#include "log.h"
 #include <sys/utsname.h>
-#define hex(hex, alphaVal) [UIColor colorWithRed:((float)((hex & 0xFF0000) >> 16))/255.0 green:((float)((hex & 0xFF00) >> 8))/255.0 blue:((float)(hex & 0xFF))/255.0 alpha:alphaVal]
-#define bgDisabledColour hex(0xB8B8B8, 1.0)
-#define setBgDisabledColour setBackgroundColor:hex(0xB8B8B8, 1.0)
-#define bgEnabledColour setBackgroundColor:hex(0x007AFF, 1.0)
-#define setBgEnabledColour setBackgroundColor:hex(0x007AFF, 1.0)
+#define colourFromHex(hex, alphaVal) [UIColor colorWithRed:((float)((hex & 0xFF0000) >> 16))/255.0 green:((float)((hex & 0xFF00) >> 8))/255.0 blue:((float)(hex & 0xFF))/255.0 alpha:alphaVal]
+#define bgDisabledColour colourFromHex(0xB8B8B8, 1.0)
+#define setBgDisabledColour setBackgroundColor:colourFromHex(0xB8B8B8, 1.0)
+#define bgEnabledColour setBackgroundColor:colourFromHex(0x007AFF, 1.0)
+#define setBgEnabledColour setBackgroundColor:colourFromHex(0x007AFF, 1.0)
+#define mainThread(code) dispatch_async(dispatch_get_main_queue(), ^{ code; }); // just to clean up the code a bit
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UITextView *logs;
@@ -26,55 +20,45 @@
 
 @implementation ViewController
 extern NSString *LOGGED;
-
-static int progress = 0;
-
-- (bool)voucher_swap {
-    if ([[[Post alloc] init] is4K]) {
-        printf("non-16k devices are unsupported.\n");
-        return false;
-    }
-    Post *post = [[Post alloc] init];
-    // Run voucher_swap
-    voucher_swap();
-    if (MACH_PORT_VALID(kernel_task_port)) {
-        // Post exploitation
-        [post go];
-        [self log:LOGGED];
-        [_exploitBtn setEnabled:YES];
-        [_exploitBtn setTitle:@"Respring" forState:UIControlStateNormal];
-        [self log:[NSString stringWithFormat:@"[+] Kernel task port: 0x%x\n[+] Kernel base: 0x%llx\n[+] User ID: %i\n[+] Group ID: %i\n[+] Is sandboxed: %@\n[+] Done!\n", kernel_task_port, [post kernelBase], getuid(), getgid(), [post isSandboxed] ? @"Yes" : @"No"]];
-        // Become mobile ([U/G]ID: 501) so Xcode can stop the process
-        [post mobile];
-        progress++;
-    } else {
-        // Failed
-        [self failure];
-    }
-    return true;
-}
+extern BOOL SHOULD_LOG;
 
 - (void)log:(NSString *)what {
-    [_logs setText:[_logs.text stringByAppendingString:[what stringByAppendingString:@""]]];
+    if (!SHOULD_LOG) return;
+    LOGGED = [LOGGED stringByAppendingString:what];
+    [self addLog];
+}
+
+- (void)slog:(NSString *)what {
+    if (!SHOULD_LOG) return;
+    [_logs setText:[@"" stringByAppendingString:[what stringByAppendingString:@""]]];
+    [_logs scrollRangeToVisible:NSMakeRange(_logs.text.length - 1, 1)];
+}
+
+- (void)addLog {
+    if (!SHOULD_LOG) return;
+    mainThread([self slog:LOGGED]);
 }
 
 - (void)failure {
+    ERROR("Failed");
+    [_exploitBtn setTitle:@"Failed" forState:UIControlStateDisabled];
 	UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Failed" message:nil preferredStyle:UIAlertControllerStyleAlert];
-        [self presentViewController:alert animated:YES completion:nil];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (IBAction)go:(id)sender {
     /*
      If you're running this in a method like viewDidLoad you only need the following:
      --------------------------------------------------------------------------------
-     if ([[[Post alloc] init] is4K]) {
+     Post *post = [[Post alloc] init];
+     if ([post is4K]) {
         printf("non-16k devices are unsupported.\n");
         assert(false);
         return;
      }
      voucher_swap();
      if (MACH_PORT_VALID(kernel_task_port)) {
-        [[[Post alloc] init] go];
+        [post go];
      } else {
         assert(false);
      }
@@ -82,39 +66,69 @@ static int progress = 0;
     // Used later
     Post *post = [[Post alloc] init];
     // For respringing
-    if (progress == 2) {
+    static bool complete = false;
+    if (complete) {
         [post respring];
         return;
-    } else if (progress == 1) {
-        return;
-    } else {
-        [sender setEnabled:NO];
-        [sender setTitle:@"Please Wait..." forState:UIControlStateDisabled];
-        progress++;
-        [self log:@"[+] Running exploit...\n"];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [NSThread sleepForTimeInterval:0.5f];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self voucher_swap];
-            });
-        });
     }
+    [sender setEnabled:NO];
+    [sender setTitle:@"Please Wait..." forState:UIControlStateDisabled];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Is the device supported?
+        __block BOOL supported = true;
+        if ([post is4K]) {
+            mainThread(
+                       ERROR("Non-16k devices are unsupported.");
+                       [sender setTitle:@"Failed" forState:UIControlStateDisabled];
+                       supported = false;
+            );
+        }
+        if (!supported) {
+            // Failed - unsupported
+            mainThread([self failure]);
+            return;
+        }
+        // Run voucher_swap
+        voucher_swap();
+        if (!MACH_PORT_VALID(kernel_task_port)) {
+            // Failed - tfp0 is invalid
+            mainThread([self failure]);
+            return;
+        }
+        // Post exploitation
+        [post go];
+        // Update the GUI
+        mainThread(
+                   [self->_exploitBtn setEnabled:YES];
+                   [self->_exploitBtn setTitle:@"Respring" forState:UIControlStateNormal];
+                   (LOG("%s", [NSString stringWithFormat:@"[+] Kernel task port: 0x%x\n[+] Kernel base: 0x%llx\n[+] User ID: %i\n[+] Group ID: %i\n[+] Is sandboxed: %@\n[+] Done!\n", kernel_task_port, [post kernel_base], getuid(), getgid(), [post isSandboxed] ? @"Yes" : @"No"].UTF8String));
+                   // Become mobile ([U/G]ID: 501) so Xcode can stop the process
+                   SHOULD_LOG = false;
+                   [post mobile];
+                   SHOULD_LOG = true;
+                   complete = true;
+        );
+        complete = true;
+        #undef mainThread
+    });
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     Post *post = [[Post alloc] init];
     struct utsname u = [post uname];
-    //[self log:[[@"[*] Device: " stringByAppendingString:[NSString stringWithCString:u.machine encoding:NSUTF8StringEncoding]] stringByAppendingString:@"\n"]];
     bool is16K = [post is16K];
     if (!is16K) {
-        [self log:[NSString stringWithFormat:@"[E] %s is unsupported\n", u.machine]];
+        ERROR("%s", [NSString stringWithFormat:@"%s is unsupported.", u.machine].UTF8String);
+        [_exploitBtn setEnabled:NO];
+        [_exploitBtn setTitle:@"Unsupported" forState:UIControlStateDisabled];
         [_exploitBtn setBgDisabledColour];
         return;
     }
-    [self log:[NSString stringWithFormat:@"[+] This is a 16K device\n"]];
-    [self log:[NSString stringWithFormat:@"[+] %s IS supported\n", u.machine]];
-    [self log:@"[+] Ready!\n"];
+    INFO("This is a 16K device");
+    INFO("%s", [NSString stringWithFormat:@"%s IS supported", u.machine].UTF8String);
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addLog) name:@"LoggedToString" object:nil];
+    INFO("Ready!");
 }
 
 - (IBAction)credits:(id)sender {
@@ -125,3 +139,5 @@ static int progress = 0;
 }
 
 @end
+
+#undef mainThread
