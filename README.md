@@ -11,3 +11,5 @@ Currently gets root and unsandboxes the application.
 <br>tfp0
 - Alticha
 <br>modifications and post exploitation
+- Pwn20wnd
+<br>some reliability improvements
