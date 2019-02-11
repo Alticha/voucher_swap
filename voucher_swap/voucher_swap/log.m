@@ -10,6 +10,7 @@
 #include <Foundation/Foundation.h>
 
 NSString *LOGGED = @"";
+bool SHOULD_LOG = true;
 
 void
 log_internal(char type, const char *format, ...) {
@@ -27,14 +28,18 @@ log_stderr(char type, const char *format, va_list ap) {
 	char *message = NULL;
 	vasprintf(&message, format, ap);
 	assert(message != NULL);
+    char *prefix = "";
+    char *suffix = "\n";
 	switch (type) {
-		case 'D': type = 'D'; break;
-		case 'I': type = '+'; break;
-		case 'W': type = '!'; break;
-		case 'E': type = '-'; break;
+		case 'D': prefix = "[D] "; break;
+		case 'I': prefix = "[+] "; break;
+		case 'W': prefix = "[!] "; break;
+		case 'E': prefix = "[-] "; break;
+        case 'L': suffix = ""; break;
 	}
-	fprintf(stderr, "[%c] %s\n", type, message);
-    LOGGED = [LOGGED stringByAppendingString:[NSString stringWithFormat:@"[%c] %s\n", type, message]];
+	fprintf(stderr, "%s%s%s", prefix, message, suffix);
+    if (SHOULD_LOG) LOGGED = [LOGGED stringByAppendingString:[NSString stringWithFormat:@"%s%s%s", prefix, message, suffix]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"LoggedToString" object:nil];
 	free(message);
 }
 

