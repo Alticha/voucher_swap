@@ -54,7 +54,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     if (patchfinder64_is_initialised()) return;
     if ([self is16KAndIsNotA12]) {
         // Kernel base
-        uint64_t base = [self kernelBase];
+        uint64_t base = [self kernel_base];
         // Initialise patchfinder64
         init_patchfinder64(base);
         INFO("Initialised patchfinder64");
@@ -72,14 +72,14 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 // Kernel base/slide //
 
-- (uint64_t)kernelSlide {
+- (uint64_t)kernel_slide {
     if (!kernel_slide) kernel_slide_init();
     INFO("Found kernel slide: 0x%llx", kernel_slide);
     return kernel_slide;
 }
 
-- (uint64_t)kernelBase {
-    uint64_t kernel_base = [self kernelSlide] + STATIC_ADDRESS(kernel_base);
+- (uint64_t)kernel_base {
+    uint64_t kernel_base = [self kernel_slide] + STATIC_ADDRESS(kernel_base);
     INFO("Found kernel base: 0x%llx", kernel_base);
     return kernel_base;
 }
