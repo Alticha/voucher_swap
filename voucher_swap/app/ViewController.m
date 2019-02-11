@@ -109,7 +109,6 @@ extern BOOL SHOULD_LOG;
                    complete = true;
         );
         complete = true;
-        #undef mainThread
     });
 }
 
