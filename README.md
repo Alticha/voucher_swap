@@ -14,4 +14,6 @@ Currently gets root and unsandboxes the application.
 - Pwn20wnd
 <br>some reliability improvements
 - xerub
-<br>although it's not being used as of now - patchfinder64
+<br>patchfinder64
+- sbinger
+<br>ArchiveFile and trust cache injection
