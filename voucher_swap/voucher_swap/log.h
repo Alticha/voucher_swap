@@ -50,6 +50,7 @@ extern void (*log_implementation)(char type, const char *format, va_list ap);
 #define INFO(fmt, ...)		log_internal('I', fmt, ##__VA_ARGS__)
 #define WARNING(fmt, ...)	log_internal('W', fmt, ##__VA_ARGS__)
 #define ERROR(fmt, ...)		log_internal('E', fmt, ##__VA_ARGS__)
+#define LOG(fmt, ...)           log_internal('L', fmt, ##__VA_ARGS__)
 
 // A function to call the logging implementation.
 void log_internal(char type, const char *format, ...) __printflike(2, 3);
