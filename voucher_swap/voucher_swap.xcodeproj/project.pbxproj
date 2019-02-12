@@ -27,6 +27,12 @@
 		E02DFA8E2203CE6B00AE2324 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = E02DFA8B2203CE6B00AE2324 /* offsets.m */; };
 		E05930E5221207480012E9B4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E05930E4221207480012E9B4 /* Main.storyboard */; };
 		E05930E72212074C0012E9B4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E05930E62212074C0012E9B4 /* LaunchScreen.storyboard */; };
+		E05A35E922135722007EA094 /* libmis.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E05A35E822135722007EA094 /* libmis.tbd */; };
+		E05A361D22138073007EA094 /* libarchive.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E05A361C22138073007EA094 /* libarchive.2.tbd */; };
+		E05A362122138211007EA094 /* ArchiveFile.m in Sources */ = {isa = PBXBuildFile; fileRef = E05A361F22138211007EA094 /* ArchiveFile.m */; };
+		E05A3623221382EB007EA094 /* entitlements.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = E05A361922137852007EA094 /* entitlements.entitlements */; };
+		E05A362622138FCA007EA094 /* bin.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E05A362522138FCA007EA094 /* bin.tar.gz */; };
+		E05A362822138FD2007EA094 /* ldid2.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E05A362722138FD2007EA094 /* ldid2.tar.gz */; };
 		E06F1A7B220CFB4600E732A9 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = E06F1A79220CFB4600E732A9 /* patchfinder64.c */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +78,16 @@
 		E02DFA8B2203CE6B00AE2324 /* offsets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = offsets.m; sourceTree = "<group>"; };
 		E05930E4221207480012E9B4 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		E05930E62212074C0012E9B4 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		E05A35E422135391007EA094 /* CSCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CSCommon.h; sourceTree = "<group>"; };
+		E05A35E822135722007EA094 /* libmis.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libmis.tbd; path = usr/lib/libmis.tbd; sourceTree = SDKROOT; };
+		E05A361922137852007EA094 /* entitlements.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = entitlements.entitlements; sourceTree = "<group>"; };
+		E05A361C22138073007EA094 /* libarchive.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libarchive.2.tbd; path = usr/lib/libarchive.2.tbd; sourceTree = SDKROOT; };
+		E05A361E221381B9007EA094 /* archive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = archive.h; sourceTree = "<group>"; };
+		E05A361F22138211007EA094 /* ArchiveFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArchiveFile.m; sourceTree = "<group>"; };
+		E05A362022138211007EA094 /* ArchiveFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArchiveFile.h; sourceTree = "<group>"; };
+		E05A362222138243007EA094 /* archive_entry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = archive_entry.h; sourceTree = "<group>"; };
+		E05A362522138FCA007EA094 /* bin.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = bin.tar.gz; sourceTree = "<group>"; };
+		E05A362722138FD2007EA094 /* ldid2.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = ldid2.tar.gz; sourceTree = "<group>"; };
 		E06F1A79220CFB4600E732A9 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
 		E06F1A7A220CFB4600E732A9 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -81,6 +97,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E05A361D22138073007EA094 /* libarchive.2.tbd in Frameworks */,
+				E05A35E922135722007EA094 /* libmis.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +152,7 @@
 				5581FD1D21D6A02A009FC879 /* headers */,
 				55F5FBE821BB2C3200F3AB28 /* voucher_swap */,
 				55F5FBE721BB2C3200F3AB28 /* Products */,
+				E05A35E5221356DD007EA094 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -174,14 +193,39 @@
 		E02DFA862203CE6B00AE2324 /* post */ = {
 			isa = PBXGroup;
 			children = (
+				E05A36242213891E007EA094 /* other */,
 				E02DFA872203CE6B00AE2324 /* post.h */,
 				E02DFA8A2203CE6B00AE2324 /* post.m */,
 				E02DFA882203CE6B00AE2324 /* offsets.h */,
 				E02DFA8B2203CE6B00AE2324 /* offsets.m */,
 				E06F1A7A220CFB4600E732A9 /* patchfinder64.h */,
 				E06F1A79220CFB4600E732A9 /* patchfinder64.c */,
+				E05A35E422135391007EA094 /* CSCommon.h */,
 			);
 			path = post;
+			sourceTree = "<group>";
+		};
+		E05A35E5221356DD007EA094 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E05A361C22138073007EA094 /* libarchive.2.tbd */,
+				E05A35E822135722007EA094 /* libmis.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E05A36242213891E007EA094 /* other */ = {
+			isa = PBXGroup;
+			children = (
+				E05A361922137852007EA094 /* entitlements.entitlements */,
+				E05A362522138FCA007EA094 /* bin.tar.gz */,
+				E05A362722138FD2007EA094 /* ldid2.tar.gz */,
+				E05A362022138211007EA094 /* ArchiveFile.h */,
+				E05A361F22138211007EA094 /* ArchiveFile.m */,
+				E05A361E221381B9007EA094 /* archive.h */,
+				E05A362222138243007EA094 /* archive_entry.h */,
+			);
+			name = other;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -241,8 +285,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E05A3623221382EB007EA094 /* entitlements.entitlements in Resources */,
+				E05A362822138FD2007EA094 /* ldid2.tar.gz in Resources */,
 				E05930E72212074C0012E9B4 /* LaunchScreen.storyboard in Resources */,
 				55F5FBF321BB2C3300F3AB28 /* Assets.xcassets in Resources */,
+				E05A362622138FCA007EA094 /* bin.tar.gz in Resources */,
 				E05930E5221207480012E9B4 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,6 +308,7 @@
 				5581FD2621D6DBB8009FC879 /* platform_match.c in Sources */,
 				551FBBDE21C2E174005F5DC9 /* parameters.c in Sources */,
 				5581FD1C21D699A1009FC879 /* pac.c in Sources */,
+				E05A362122138211007EA094 /* ArchiveFile.m in Sources */,
 				E02DFA8E2203CE6B00AE2324 /* offsets.m in Sources */,
 				E02DFA8D2203CE6B00AE2324 /* post.m in Sources */,
 				55F5FC0121BB2DED00F3AB28 /* voucher_swap.c in Sources */,
