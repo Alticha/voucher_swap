@@ -131,7 +131,7 @@ extern BOOL SHOULD_LOG;
 }
 
 - (IBAction)credits:(id)sender {
-    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Credits" message:@"Exploit: (@_)bazad\nModifications and post-exploitation: (@)Alticha(Dev)\n" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Credits" message:@"Exploit: (@_)bazad\nModifications and post-exploitation: (@)Alticha(Dev)\n(@)Pwn20wnd: Exploit reliability improvements" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *action = [UIAlertAction actionWithTitle:@"Dismiss" style:UIAlertActionStyleCancel handler:nil];
     [controller addAction:action];
     [self presentViewController:controller animated:YES completion:nil];
