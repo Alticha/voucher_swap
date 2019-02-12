@@ -13,3 +13,5 @@ Currently gets root and unsandboxes the application.
 <br>modifications and post exploitation
 - Pwn20wnd
 <br>some reliability improvements
+- xerub
+<br>although it's not being used as of now - patchfinder64
