@@ -8,8 +8,8 @@
 // General
 - (bool)go;
 // Kernel base/slide //
-- (uint64_t)kernelSlide;
-- (uint64_t)kernelBase;
+- (uint64_t)kernel_slide;
+- (uint64_t)kernel_base;
 // Checks
 - (struct utsname)uname;
 - (int)modelDigitsBeforeComma;
@@ -34,7 +34,7 @@
 - (void)unsandbox;
 - (void)unsandbox:(uint64_t)proc;
 - (bool)isSandboxed;
-- (bool)isProcSandboxed:(uint64_t)proc;
+- (bool)isSandboxed:(uint64_t)proc;
 // Procs
 - (uint64_t)allproc;
 - (uint64_t)selfproc;

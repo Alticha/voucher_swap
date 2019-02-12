@@ -447,7 +447,8 @@ static void *kernel_mh = 0;
 static addr_t kernel_delta = 0;
 
 _Bool
-patchfinder64_is_initialised() {
+patchfinder64_is_initialised()
+{
     return kernel != NULL;
 }
 
@@ -845,28 +846,12 @@ uint64_t find_rootvnode(void) {
 }
 
 addr_t find_trustcache(void) {
-    addr_t call1, call2, call3, call4, call5;
-    addr_t func1, func2, func4;
-    addr_t val;
-    addr_t amfiUC_inTrustCache = find_strref("%s: only allowed process can check the trust cache", 1, 1); // Trying to find AppleMobileFileIntegrityUserClient::isCdhashInTrustCache
-    amfiUC_inTrustCache -= kerndumpbase;
-    call1 = step64_back(kernel, amfiUC_inTrustCache, 11*4, INSN_CALL);
-    
-    func1 = follow_call64(kernel, call1);
-    
-    call2 = step64(kernel, func1, 8*4, INSN_CALL);
-    func2 = follow_call64(kernel, call2);
-    
-    call3 = step64(kernel, func2, 8*4, INSN_CALL);
-    
-    // We ignore the above call, as we are looking for the dynamic cache
-    call4 = step64(kernel, call3+4, 8*4, INSN_CALL);
-    func4 = follow_call64(kernel, call4);
-    
-    call5 = step64(kernel, func4, 12*4, INSN_CALL);
-    
-    val = calc64(kernel, call5, call5 + 6*4, 21);
-    
+    addr_t ref, val;
+    ref = find_strref("\"loadable trust cache buffer too small (%ld) for entries claimed (%d)\"", 1, 0);
+    if (!ref) return 0;
+    ref -= kerndumpbase;
+    val = calc64(kernel, ref-12*4, ref-12*4+12, 8);
+    if (!val) return 0;
     return val + kerndumpbase;
 }
 

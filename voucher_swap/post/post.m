@@ -9,6 +9,12 @@
 #include <UIKit/UIDevice.h>
 #include <sys/utsname.h>
 #include "log.h"
+#include <spawn.h>
+#include <dlfcn.h>
+#include "CSCommon.h"
+#include <sys/stat.h>
+#include "ArchiveFile.h"
+#define NSStringToArgs(path) (char *[]){(char *)path.UTF8String}
 
 @implementation Post
 
@@ -27,6 +33,15 @@
 static uint64_t SANDBOX = 0;
 static int SAVED_SET[3] = { 0, 0, 0 };
 
+// Bins //
+
+- (void)extract:(NSString *)from to:(NSString *)to {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:to]) return;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:from]) return;
+    ArchiveFile *tar = [[ArchiveFile alloc] initWithFile:from];
+    [tar extractToPath:to];
+}
+
 // General post-exploitation method //
 
 - (bool)go {
@@ -40,6 +55,11 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self unsandbox];
     // If we can, initialise patchfinder64
     [self initialise_patchfinder64];
+    // If we can, run a test binary
+    [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    [self execute:NSStringToArgs([[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"])];
+    // If we can, terminate patchfinder64
+    [self terminate_patchfinder64];
     // For debugging purposes
     [self debug];
     // Did we succeed?
@@ -51,8 +71,12 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 // patchfinder64 //
 
+- (BOOL)is_patchfinder64_initialised {
+    return patchfinder64_is_initialised();
+}
+
 - (void)initialise_patchfinder64 {
-    if (patchfinder64_is_initialised()) return;
+    if ([self is_patchfinder64_initialised]) return;
     if ([self is16KAndIsNotA12]) {
         // Kernel base
         uint64_t base = [self kernel_base];
@@ -63,7 +87,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)terminate_patchfinder64 {
-    if (!patchfinder64_is_initialised()) return;
+    if (![self is_patchfinder64_initialised]) return;
     if ([self is16KAndIsNotA12]) {
         // Terminate patchfinder64
         term_patchfinder64();
@@ -255,6 +279,197 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
     if (SANDBOX == 0) SANDBOX = kernel_read64(cr_label + off_sandbox_slot);
     kernel_write64(cr_label + off_sandbox_slot, 0);
+}
+
+// ldid2 //
+
+- (void)ldid2:(NSString *)path {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
+    char *args[] = { (char *)ldid2, "-S", (char *)path.UTF8String };
+    [self execute:args];
+}
+
+- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:entitlements]) return;
+    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
+    NSString *s = [@"-S" stringByAppendingString:entitlements];
+    char *args[] = { (char *)ldid2, (char *)s.UTF8String, (char *)path.UTF8String };
+    [self execute:args];
+}
+
+// Trust Cache //
+// thx sbinger
+
+- (bool)isInAMFIStaticCache:(NSString *)path {
+    extern int MISValidateSignatureAndCopyInfo(NSString *file, NSDictionary *options, NSDictionary **info);
+    extern NSString *kMISValidationOptionAllowAdHocSigning;
+    extern NSString *kMISValidationOptionRespectUppTrustAndAuthorization;
+    return MISValidateSignatureAndCopyInfo(path, @{kMISValidationOptionAllowAdHocSigning: @YES, kMISValidationOptionRespectUppTrustAndAuthorization: @YES}, NULL) == 0;
+}
+
+- (NSString *)cdhashFor:(NSString *)file {
+    NSString *cdhash = nil;
+    SecStaticCodeRef staticCode;
+    OSStatus SecStaticCodeCreateWithPathAndAttributes(CFURLRef path, SecCSFlags flags, CFDictionaryRef attributes, SecStaticCodeRef  _Nullable *staticCode);
+    OSStatus result = SecStaticCodeCreateWithPathAndAttributes(CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)file, kCFURLPOSIXPathStyle, false), kSecCSDefaultFlags, NULL, &staticCode);
+    const char *filename = file.UTF8String;
+    if (result != errSecSuccess) {
+        CFStringRef (*_SecCopyErrorMessageString)(OSStatus status, void * __nullable reserved) = NULL;
+        if (_SecCopyErrorMessageString != NULL) {
+            CFStringRef error = _SecCopyErrorMessageString(result, NULL);
+            ERROR("Unable to generate cdhash for %s: %s", filename, [(__bridge id)error UTF8String]);
+            CFRelease(error);
+        } else {
+            ERROR("Unable to generate cdhash for %s: %d", filename, result);
+        }
+        return nil;
+    }
+    
+    CFDictionaryRef cfinfo;
+    OSStatus SecCodeCopySigningInformation(SecStaticCodeRef code, SecCSFlags flags, CFDictionaryRef  _Nullable *information);
+    result = SecCodeCopySigningInformation(staticCode, kSecCSDefaultFlags, &cfinfo);
+    NSDictionary *info = CFBridgingRelease(cfinfo);
+    CFRelease(staticCode);
+    if (result != errSecSuccess) {
+        ERROR("Unable to copy cdhash info for %s", filename);
+        return nil;
+    }
+    NSArray *cdhashes = info[@"cdhashes"];
+    NSArray *algos = info[@"digest-algorithms"];
+    NSUInteger algoIndex = [algos indexOfObject:@(2)];;
+    
+    if (cdhashes == nil) {
+        ERROR("%s: no cdhashes", filename);
+    } else if (algos == nil) {
+        ERROR("%s: no algos", filename);
+    } else if (algoIndex == NSNotFound) {
+        ERROR("%s: does not have SHA256 hash", filename);
+    } else {
+        cdhash = [cdhashes objectAtIndex:algoIndex];
+        if (cdhash == nil) {
+            ERROR("%s: missing SHA256 cdhash entry", file.UTF8String);
+        }
+    }
+    return cdhash;
+}
+
+- (NSArray *)filteredHashes:(uint64_t)trust_chain hashes:(NSDictionary *)hashes {
+    NSMutableDictionary *filtered = [hashes mutableCopy];
+    for (NSData *cdhash in [filtered allKeys]) {
+        if ([self isInAMFIStaticCache:filtered[cdhash]]) {
+            WARNING("%s: already in static trustcache, not reinjecting", [filtered[cdhash] UTF8String]);
+            [filtered removeObjectForKey:cdhash];
+        }
+    }
+    struct trust_mem {
+        uint64_t next;
+        unsigned char uuid[16];
+        unsigned int count;
+    } __attribute__((packed)) search;
+    search.next = trust_chain;
+    while (search.next != 0) {
+        uint64_t searchAddr = search.next;
+        kread(searchAddr, &search, sizeof(struct trust_mem));
+        char *data = malloc(search.count * 20);
+        kread(searchAddr + sizeof(struct trust_mem), data, search.count * 20);
+        size_t data_size = search.count * 20;
+        for (char *dataref = data; dataref <= data + data_size - 20; dataref += 20) {
+            NSData *cdhash = [NSData dataWithBytesNoCopy:dataref length:20 freeWhenDone:NO];
+            NSString *hashName = filtered[cdhash];
+            if (hashName != nil) {
+                WARNING("%s: already in dynamic trustcache, not reinjecting", [hashName UTF8String]);
+                [filtered removeObjectForKey:cdhash];
+                if ([filtered count] == 0) {
+                    free(data);
+                    return nil;
+                }
+            }
+        }
+        free(data);
+    }
+    INFO("Actually injecting %lu keys", [[filtered allKeys] count]);
+    return [filtered allKeys];
+}
+
+- (int)injectTrustCache:(NSArray <NSString *> *)files {
+    uint64_t trust_chain = find_trustcache();
+    struct {
+        uint64_t next;
+        unsigned char uuid[16];
+        unsigned int count;
+    } __attribute__((packed)) mem;
+    uint64_t kernel_trust = 0;
+    mem.next = kernel_read64(trust_chain);
+    mem.count = 0;
+    *(uint64_t *)&mem.uuid[0] = 0xabadbabeabadbabe;
+    *(uint64_t *)&mem.uuid[8] = 0xabadbabeabadbabe;
+    NSMutableDictionary *hashes = [NSMutableDictionary new];
+    int errors = 0;
+    for (NSString *file in files) {
+        NSString *cdhash = [self cdhashFor:file];
+        if (cdhash == nil) {
+            errors++;
+        } else {
+            if (hashes[cdhash] == nil) {
+                //INFO("%s: OK", file.UTF8String);
+                hashes[cdhash] = file;
+            } else {
+                WARNING("%s: same as %s (ignoring)", file.UTF8String, [hashes[cdhash] UTF8String]);
+            }
+        }
+    }
+    unsigned numHashes = (unsigned)[hashes count];
+    if (numHashes < 1) {
+        ERROR("Found no hashes to inject");
+        return errors;
+    }
+    NSArray *filtered = [self filteredHashes:mem.next hashes:hashes];
+    unsigned hashesToInject = (unsigned)[filtered count];
+    INFO("%u new hashes to inject", hashesToInject);
+    if (hashesToInject < 1) {
+        return errors;
+    }
+    size_t length = (sizeof(mem) + hashesToInject * 20 + 0xFFFF) & ~0xFFFF;
+    char *buffer = malloc(hashesToInject * 20);
+    if (buffer == NULL) {
+        ERROR("Unable to allocate memory for cdhashes: %s", strerror(errno));
+        return -3;
+    }
+    char *curbuf = buffer;
+    for (NSData *hash in filtered) {
+        memcpy(curbuf, [hash bytes], 20);
+        curbuf += 20;
+    }
+    kernel_trust = kernel_alloc(length);
+    mem.count = hashesToInject;
+    kwrite(kernel_trust, &mem, sizeof(mem));
+    kwrite(kernel_trust + sizeof(mem), buffer, mem.count * 20);
+    kernel_write64(trust_chain, kernel_trust);
+    return (int)errors;
+}
+
+// Execute //
+
+- (int)execute:(char *[])args {
+    if (![self is_patchfinder64_initialised]) return false;
+    INFO("Executing %s...", args[0]);
+    pid_t pid, s;
+    if ([self posix_spawn:&pid path:args[0] file_actions:NULL attrp:NULL argv:(char **)&args envp:NULL]) {
+        ERROR("Failed to execute %s", args[0]);
+    }
+    waitpid(pid, &s, 0);
+    INFO("Executed %s", args[0]);
+    return WEXITSTATUS(s);
+}
+
+- (int)posix_spawn:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
+    if (![self is_patchfinder64_initialised]) return false;
+    [self injectTrustCache:@[@(path)]];
+    return posix_spawn(pid, path, file_actions, attrp, (char **)&argv, envp);
 }
 
 // Procs //
