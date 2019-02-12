@@ -54,6 +54,7 @@ size_t kread(uint64_t where, void *p, size_t size);
  * 	Write data to kernel memory.
  */
 bool kernel_write(uint64_t address, const void *data, size_t size);
+size_t kwrite(uint64_t where, const void *p, size_t size);
 
 /*
  * kernel_read8
@@ -127,6 +128,8 @@ bool kernel_write64(uint64_t address, uint64_t value);
  */
 bool kernel_ipc_port_lookup(uint64_t task, mach_port_name_t port_name,
 		uint64_t *ipc_port, uint64_t *ipc_entry);
+
+uint64_t kernel_alloc(uint64_t size);
 
 #undef extern
 

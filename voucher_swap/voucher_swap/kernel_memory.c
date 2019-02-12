@@ -57,6 +57,25 @@ kernel_write(uint64_t address, const void *data, size_t size) {
 	}
 	return true;
 }
+size_t kwrite(uint64_t where, const void *p, size_t size)
+{
+    int rv;
+    size_t offset = 0;
+    
+    while (offset < size) {
+        size_t chunk = 2048;
+        if (chunk > size - offset) {
+            chunk = size - offset;
+        }
+        rv = mach_vm_write(kernel_task_port, where + offset, (mach_vm_offset_t)p + offset, (mach_msg_type_number_t)chunk);
+        if (rv) {
+            fprintf(stderr, "[e] error writing kernel @%p\n", (void *)(offset + where));
+            break;
+        }
+        offset += chunk;
+    }
+    return offset;
+}
 
 uint8_t
 kernel_read8(uint64_t address) {
@@ -143,4 +162,12 @@ kernel_ipc_port_lookup(uint64_t task, mach_port_name_t port_name,
 		*ipc_port = kernel_read64(entry + OFFSET(ipc_entry, ie_object));
 	}
 	return true;
+}
+
+uint64_t kernel_alloc(uint64_t size) {
+    kern_return_t err;
+    mach_vm_address_t addr = 0;
+    mach_vm_size_t ksize = round_page_kernel(size);
+    err = mach_vm_allocate(kernel_task_port, &addr, ksize, VM_FLAGS_ANYWHERE);
+    return addr;
 }
