@@ -131,7 +131,7 @@ extern BOOL SHOULD_LOG;
 }
 
 - (IBAction)credits:(id)sender {
-    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Credits" message:@"Exploit: (@_)bazad\nModifications and post-exploitation: (@)Alticha(Dev)\nPwn20wnd: exploit reliability improvements\nsbinger: ArchiveFile and trust cache injection\nxerub: patchfinder64" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Credits" message:@"(@_)bazad: Exploit\n(@)Alticha(Dev): Modifications and post-exploitation:\n(@)Pwn20wnd: exploit reliability improvements\n(@)sbinger: ArchiveFile and trust cache injection\n(@)xerub: patchfinder64" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *action = [UIAlertAction actionWithTitle:@"Dismiss" style:UIAlertActionStyleCancel handler:nil];
     [controller addAction:action];
     [self presentViewController:controller animated:YES completion:nil];
