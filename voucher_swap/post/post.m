@@ -17,7 +17,8 @@
 - (void)debug {
     [self save];
     [self mobile];
-    // Breakpoint
+    usleep(0);
+    usleep(0);
     [self restore];
 }
 
@@ -39,12 +40,12 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self unsandbox];
     // If we can, initialise patchfinder64
     [self initialise_patchfinder64];
+    // For debugging purposes
+    [self debug];
     // Did we succeed?
     bool success = [self isRoot] && ![self isSandboxed];
     if (success) INFO("Post-exploitation was successful!");
     if (!success) INFO("Post-exploitation failed.");
-    // For debugging purposes
-    //[self debug];
     return success;
 }
 
@@ -171,14 +172,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)setUID:(uid_t)uid {
-    uint64_t proc = [self selfproc];
-    uint64_t ucred = kernel_read64(proc + off_p_ucred);
-    kernel_write32(proc + off_p_uid, uid);
-    kernel_write32(proc + off_p_ruid, uid);
-    kernel_write32(ucred + off_ucred_cr_uid, uid);
-    kernel_write32(ucred + off_ucred_cr_ruid, uid);
-    kernel_write32(ucred + off_ucred_cr_svuid, uid);
-    INFO("Overwritten UID to %i for proc 0x%llx", uid, proc);
+    [self setUID:uid forProc:[self selfproc]];
 }
 
 - (void)setUID:(uid_t)uid forProc:(uint64_t)proc {
@@ -192,13 +186,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)setGID:(gid_t)gid {
-    uint64_t proc = [self selfproc];
-    uint64_t ucred = kernel_read64(proc + off_p_ucred);
-    kernel_write32(proc + off_p_gid, gid);
-    kernel_write32(proc + off_p_rgid, gid);
-    kernel_write32(ucred + off_ucred_cr_rgid, gid);
-    kernel_write32(ucred + off_ucred_cr_svgid, gid);
-    INFO("Overwritten GID to %i for proc 0x%llx", gid, proc);
+    [self setGID:gid forProc:[self selfproc]];
 }
 
 - (void)setGID:(gid_t)gid forProc:(uint64_t)proc {
@@ -240,18 +228,12 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     return kernel_read64(kernel_read64(kernel_read64([self selfproc] + off_p_ucred) + off_ucred_cr_label) + off_sandbox_slot) != 0;
 }
 
-- (bool)isProcSandboxed:(uint64_t)proc {
+- (bool)isSandboxed:(uint64_t)proc {
     return kernel_read64(kernel_read64(kernel_read64(proc + off_p_ucred) + off_ucred_cr_label) + off_sandbox_slot) != 0;
 }
 
 - (void)sandbox {
-    uint64_t proc = [self selfproc];
-    INFO("Sandboxed proc 0x%llx", proc);
-    if ([self isSandboxed]) return;
-    uint64_t ucred = kernel_read64(proc + off_p_ucred);
-    uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
-    kernel_write64(cr_label + off_sandbox_slot, SANDBOX);
-    SANDBOX = 0;
+    [self sandbox:[self selfproc]];
 }
 
 - (void)sandbox:(uint64_t)proc {
@@ -264,13 +246,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)unsandbox {
-    uint64_t proc = [self selfproc];
-    INFO("Unsandboxed proc 0x%llx", proc);
-    if (![self isSandboxed]) return;
-    uint64_t ucred = kernel_read64(proc + off_p_ucred);
-    uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
-    if (SANDBOX == 0) SANDBOX = kernel_read64(cr_label + off_sandbox_slot);
-    kernel_write64(cr_label + off_sandbox_slot, 0);
+    [self unsandbox:[self selfproc]];
 }
 
 - (void)unsandbox:(uint64_t)proc {
@@ -285,15 +261,18 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 // Procs //
 
 - (uint64_t)allproc {
-    uint64_t proc = [self kernproc];
+    static uint64_t proc = 0;
+    if (proc) return proc;
+    proc = [self selfproc];
     // i think the max pid value is 99998?
-    for (pid_t i = 0; i < 99999; i++) {
-        if (!kernel_read64(proc + off_p_next) /* if we can't read here, the previously read address was allproc */) {
-            INFO("Found allproc: 0x%llx\n", proc);
+    for (pid_t i = 0; i < 99998 - getpid(); i++) {
+        uint64_t tmp_proc = kernel_read64(proc + off_p_next);
+        if (!tmp_proc /* if we can't read here, the previously read address was allproc */) {
+            INFO("Found allproc: 0x%llx", proc);
             return proc;
         }
         // not allproc - let's try this one?
-        proc = kernel_read64(proc + off_p_next);
+        proc = tmp_proc;
     }
     return 0;
 }
