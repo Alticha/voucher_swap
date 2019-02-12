@@ -199,10 +199,10 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)setUIDAndGID:(int)both {
-    [self setUIDAndGID:both proc:[self selfproc]];
+    [self setUIDAndGID:both forProc:[self selfproc]];
 }
 
-- (void)setUIDAndGID:(int)both proc:(uint64_t)proc {
+- (void)setUIDAndGID:(int)both forProc:(uint64_t)proc {
     [self setUID:both forProc:proc];
     [self setGID:both forProc:proc];
 }
