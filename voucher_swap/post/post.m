@@ -14,7 +14,6 @@
 #include "CSCommon.h"
 #include <sys/stat.h>
 #include "ArchiveFile.h"
-#define NSStringToArgs(path) (char *[]){(char *)path.UTF8String}
 
 @implementation Post
 
