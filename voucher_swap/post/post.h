@@ -35,14 +35,15 @@
 - (void)unsandbox:(uint64_t)proc;
 - (bool)isSandboxed;
 - (bool)isSandboxed:(uint64_t)proc;
-// Trust Cache & Execution
-#define NSStringToArgs(path) (char *[]){(char *)path.UTF8String}
-- (void)ldid2:(NSString *)path;
-- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements;
+// Extract, Trust Cache, ldid2 & Execution
+- (bool)extract:(NSString *)from to:(NSString *)to;
 - (bool)isInAMFIStaticCache:(NSString *)path;
 - (NSString *)cdhashFor:(NSString *)file;
 - (NSArray *)filteredHashes:(uint64_t)trust_chain hashes:(NSDictionary *)hashes;
 - (int)injectTrustCache:(NSArray <NSString *> *)files;
+- (void)ldid2:(NSString *)path;
+- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements;
+#define NSStringToArgs(path) (char *[]){(char *)path.UTF8String}
 - (int)execute:(char *[])args;
 - (int)posix_spawn:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp;
 // Procs
