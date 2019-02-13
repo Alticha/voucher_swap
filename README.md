@@ -6,6 +6,8 @@ Currently supports all 16K devices.
 <br>
 # Post Exploitation
 Currently gets root and unsandboxes the application.
+<br>
+Also runs a binary on non-A12 devices.
 # Credits
 - bazad
 <br>tfp0
