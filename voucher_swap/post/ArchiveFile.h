@@ -26,6 +26,7 @@
 -(BOOL)extractToPath:(NSString*)path;
 -(BOOL)extractToPath:(NSString*)path overWriteDirectories:(BOOL)overwrite_dirs;
 -(BOOL)extractToPath:(NSString*)path withFlags:(int)flags;
+-(BOOL)extractFile:(NSString *)path to:(NSString *)to;
 -(BOOL)extractToPath:(NSString*)path withFlags:(int)flags overWriteDirectories:(BOOL)overwrite_dirs;
 @end
 
