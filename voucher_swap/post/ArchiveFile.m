@@ -358,6 +358,15 @@ out:
     return [self extractToPath:path withFlags:flags overWriteDirectories:NO];
 }
 
+-(BOOL)extractFile:(NSString *)path to:(NSString *)to {
+    INFO("Extracting \"%s\" to \"%s\"...", path.UTF8String, to.UTF8String);
+    if ([[[ArchiveFile alloc] initWithFile:path] extractToPath:to]) {
+        INFO("Extraction of \"%s\" successfully completed", path.UTF8String);
+        return true;
+    }
+    return false;
+}
+
 -(BOOL)extractToPath:(NSString*)path withFlags:(int)flags overWriteDirectories:(BOOL)overwrite_dirs
 {
     BOOL result = NO;
@@ -393,7 +402,7 @@ out:
     }
     while ((rv = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         if (rv < ARCHIVE_OK) {
-            INFO("Archive \"%s\": %s", archive_entry_pathname(entry), archive_error_string(ext));
+            ERROR("Archive \"%s\": %s", archive_entry_pathname(entry), archive_error_string(ext));
             if (rv < ARCHIVE_WARN)
                 goto out;
         }
@@ -405,31 +414,31 @@ out:
             if (!overwrite_dirs) {
                 if (S_ISDIR(st.st_mode)) {
                     // Directory already exists, don't mess with it
-                    INFO("Archive: skipping directory: %s", filename);
+                    WARNING("Archive: skipping directory: %s", filename);
                     continue;
                 }
             }
-            INFO("Archive: Overwriting file %s", filename);
+            LOG("\tArchive: Overwriting file %s\n", filename);
         }
         rv = archive_write_header(ext, entry);
         if (rv < ARCHIVE_OK) {
-            INFO("Archive \"%s\": %s", filename, archive_error_string(ext));
+            ERROR("Archive \"%s\": %s", filename, archive_error_string(ext));
         }
         if (archive_entry_size(entry) > 0) {
             rv = copy_data(a, ext);
             if (rv < ARCHIVE_OK) {
-                INFO("Archive: Error copying data for %s: %s", filename, archive_error_string(ext));
+                ERROR("Archive: Error copying data for %s: %s", filename, archive_error_string(ext));
                 if (rv < ARCHIVE_WARN)
                     goto out;
             }
         }
         rv = archive_write_finish_entry(ext);
         if (rv < ARCHIVE_OK) {
-            INFO("Archive \"%s\": %s", filename, archive_error_string(ext));
+            ERROR("Archive \"%s\": %s", filename, archive_error_string(ext));
             if (rv < ARCHIVE_WARN)
                 goto out;
         }
-        INFO("%s: OK", filename);
+        LOG("\t%s: OK\n", filename);
     }
     result = YES;
     out:
