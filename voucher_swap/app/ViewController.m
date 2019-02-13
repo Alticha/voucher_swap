@@ -50,9 +50,9 @@ extern BOOL SHOULD_LOG;
     /*
      If you're running this in a method like viewDidLoad you only need the following:
      --------------------------------------------------------------------------------
-     Post *post = [[Post alloc] init];
-     if ([post is4K]) {
-        printf("non-16k devices are unsupported.\n");
+     Post *post = [Post alloc];
+     if ([post isUnsupported]) {
+        ERROR("Your device is unsupported.");
         assert(false);
         return;
      }
@@ -64,7 +64,7 @@ extern BOOL SHOULD_LOG;
      }
      */
     // Used later
-    Post *post = [[Post alloc] init];
+    Post *post = [Post alloc];
     // For respringing
     static bool complete = false;
     if (complete) {
@@ -75,18 +75,13 @@ extern BOOL SHOULD_LOG;
     [sender setTitle:@"Please Wait..." forState:UIControlStateDisabled];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         // Is the device supported?
-        __block BOOL supported = true;
-        if ([post is4K]) {
+        if ([post isUnsupported]) {
             mainThread(
-                       ERROR("Non-16k devices are unsupported.");
+                       ERROR("Your device is unsupported");
                        [sender setTitle:@"Failed" forState:UIControlStateDisabled];
                        supported = false;
             );
-        }
-        if (!supported) {
-            // Failed - unsupported
-            mainThread([self failure]);
-            return;
+	    return;
         }
         // Run voucher_swap
         voucher_swap();
@@ -116,16 +111,15 @@ extern BOOL SHOULD_LOG;
     [super viewDidLoad];
     Post *post = [[Post alloc] init];
     struct utsname u = [post uname];
-    bool is16K = [post is16K];
-    if (!is16K) {
-        ERROR("%s", [NSString stringWithFormat:@"%s is unsupported.", u.machine].UTF8String);
+    bool isSupported = [post isSupported];
+    if (!isSupported) {
+        ERROR("%s", [NSString stringWithFormat:@"%s is an unsupported device", u.machine].UTF8String);
         [_exploitBtn setEnabled:NO];
         [_exploitBtn setTitle:@"Unsupported" forState:UIControlStateDisabled];
         [_exploitBtn setBgDisabledColour];
         return;
     }
-    INFO("This is a 16K device");
-    INFO("%s", [NSString stringWithFormat:@"%s IS supported", u.machine].UTF8String);
+    INFO("%s", [NSString stringWithFormat:@"%s is a supported device", u.machine].UTF8String);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addLog) name:@"LoggedToString" object:nil];
     INFO("Ready!");
 }
