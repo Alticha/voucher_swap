@@ -13,10 +13,10 @@
 // Checks
 - (struct utsname)uname;
 - (int)modelDigitsBeforeComma;
-- (bool)is4K;
-- (bool)is16K;
+- (bool)isSupported;
+- (bool)isUnsupported;
 - (bool)isA12;
-- (bool)is16KAndIsNotA12;
+- (bool)isSupportedAndIsNotA12;
 // Users
 - (bool)isRoot;
 - (bool)isMobile;
