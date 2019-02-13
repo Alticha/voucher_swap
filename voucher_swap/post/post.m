@@ -20,11 +20,11 @@
 // Debugging //
 
 - (void)debug {
-    [self save];
-    [self mobile];
-    usleep(0);
-    usleep(0);
-    [self restore];
+    usleep(0); // p [self save];
+    usleep(0); // p [self mobile];
+    usleep(0); // p log_internal('I', "Debugging...", NULL);
+    usleep(0); // p log_internal('I', "Finished debugging", NULL);
+    usleep(0); // p [self restore];
 }
 
 // Variables //
@@ -196,6 +196,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)setUID:(uid_t)uid forProc:(uint64_t)proc {
+    if (getuid() == uid) return;
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     kernel_write32(proc + off_p_uid, uid);
     kernel_write32(proc + off_p_ruid, uid);
@@ -210,6 +211,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)setGID:(gid_t)gid forProc:(uint64_t)proc {
+    if (getgid() == gid) return;
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     kernel_write32(proc + off_p_gid, gid);
     kernel_write32(proc + off_p_rgid, gid);
