@@ -2,7 +2,7 @@
 #define post_h
 
 #include <Foundation/Foundation.h>
-
+#include <spawn.h>
 @interface Post : NSObject
 
 // General
@@ -13,10 +13,10 @@
 // Checks
 - (struct utsname)uname;
 - (int)modelDigitsBeforeComma;
-- (bool)is4K;
-- (bool)is16K;
+- (bool)isSupported;
+- (bool)isUnsupported;
 - (bool)isA12;
-- (bool)is16KAndIsNotA12;
+- (bool)isSupportedAndIsNotA12;
 // Users
 - (bool)isRoot;
 - (bool)isMobile;
@@ -35,6 +35,16 @@
 - (void)unsandbox:(uint64_t)proc;
 - (bool)isSandboxed;
 - (bool)isSandboxed:(uint64_t)proc;
+// Trust Cache & Execution
+#define NSStringToArgs(path) (char *[]){(char *)path.UTF8String}
+- (void)ldid2:(NSString *)path;
+- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements;
+- (bool)isInAMFIStaticCache:(NSString *)path;
+- (NSString *)cdhashFor:(NSString *)file;
+- (NSArray *)filteredHashes:(uint64_t)trust_chain hashes:(NSDictionary *)hashes;
+- (int)injectTrustCache:(NSArray <NSString *> *)files;
+- (int)execute:(char *[])args;
+- (int)posix_spawn:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp;
 // Procs
 - (uint64_t)allproc;
 - (uint64_t)selfproc;
