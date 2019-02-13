@@ -77,7 +77,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 - (void)initialise_patchfinder64 {
     if ([self is_patchfinder64_initialised]) return;
-    if ([self is16KAndIsNotA12]) {
+    if ([self isSupportedAndIsNotA12]) {
         // Kernel base
         uint64_t base = [self kernel_base];
         // Initialise patchfinder64
@@ -88,7 +88,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 - (void)terminate_patchfinder64 {
     if (![self is_patchfinder64_initialised]) return;
-    if ([self is16KAndIsNotA12]) {
+    if ([self isSupportedAndIsNotA12]) {
         // Terminate patchfinder64
         term_patchfinder64();
         INFO("Terminated patchfinder64");
@@ -137,28 +137,25 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     return digits;
 }
 
-- (bool)is4K {
+- (bool)isSupported {
     if ([[UIDevice currentDevice].model isEqualToString:@"iPod touch"]) {
         return true;
     }
     int digits = [self modelDigitsBeforeComma];
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         if (digits < 8) {
-            //INFO("This is a 4K device");
-            return true;
+            return false;
         }
     } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         if (digits < 6) {
-            //INFO("This is a 4K device");
-            return true;
+            return false;
         }
     }
-    //INFO("This is a 16K device");
-    return false;
+    return true;
 }
 
-- (bool)is16K {
-    return ![self is4K];
+- (bool)isUnsupported {
+    return ![self isSupported];
 }
 
 - (bool)isA12 {
@@ -181,8 +178,8 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     return false;
 }
 
-- (bool)is16KAndIsNotA12 {
-    return [self is16K] && ![self isA12];
+- (bool)isSupportedAndIsNotA12 {
+    return [self isSupported] && ![self isA12];
 }
 
 // Users //
