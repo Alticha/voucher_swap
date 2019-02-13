@@ -32,13 +32,12 @@
 static uint64_t SANDBOX = 0;
 static int SAVED_SET[3] = { 0, 0, 0 };
 
-// Bins //
+// Extract //
 
-- (void)extract:(NSString *)from to:(NSString *)to {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:to]) return;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:from]) return;
-    ArchiveFile *tar = [[ArchiveFile alloc] initWithFile:from];
-    [tar extractToPath:to];
+- (bool)extract:(NSString *)from to:(NSString *)to {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:to]) return false;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:from]) return false;
+    return [[ArchiveFile alloc] extractFile:from to:to];
 }
 
 // General post-exploitation method //
