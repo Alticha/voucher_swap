@@ -17,5 +17,5 @@ Also runs a binary on non-A12 devices.
 <br>some reliability improvements
 - xerub
 <br>patchfinder64
-- sbinger
+- sbingner
 <br>ArchiveFile and trust cache injection
