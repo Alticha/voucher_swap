@@ -299,7 +299,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 // Trust Cache //
-// thx sbinger
+// thx sbingner
 
 - (bool)isInAMFIStaticCache:(NSString *)path {
     extern int MISValidateSignatureAndCopyInfo(NSString *file, NSDictionary *options, NSDictionary **info);
