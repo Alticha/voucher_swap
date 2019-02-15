@@ -8,8 +8,8 @@
 // General
 - (bool)go;
 // Kernel base/slide //
-- (uint64_t)kernelSlide;
-- (uint64_t)kernelBase;
+- (uint64_t)kernel_slide;
+- (uint64_t)kernel_base;
 // Checks
 - (struct utsname)uname;
 - (int)modelDigitsBeforeComma;
