@@ -79,7 +79,6 @@ extern BOOL SHOULD_LOG;
             mainThread(
                        ERROR("Your device is unsupported");
                        [sender setTitle:@"Failed" forState:UIControlStateDisabled];
-                       supported = false;
             );
 	    return;
         }
