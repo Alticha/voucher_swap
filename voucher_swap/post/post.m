@@ -51,6 +51,10 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 // patchfinder64 //
 
+- (BOOL)is_patchfinder64_initialised {
+    return patchfinder64_is_initialised();
+}
+
 - (void)initialise_patchfinder64 {
     if ([self is_patchfinder64_initialised]) return;
     if ([self isSupportedAndIsNotA12]) {
