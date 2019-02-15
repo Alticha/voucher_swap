@@ -34,7 +34,7 @@
 - (void)unsandbox;
 - (void)unsandbox:(uint64_t)proc;
 - (bool)isSandboxed;
-- (bool)isProcSandboxed:(uint64_t)proc;
+- (bool)isSandboxed:(uint64_t)proc;
 // Procs
 - (uint64_t)allproc;
 - (uint64_t)selfproc;
