@@ -300,7 +300,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 - (uint64_t)proc_for_pid:(pid_t)pid {
     if (pid == getuid()) {
         return [self selfproc];
-    } else if (pid == 0) {
+    } else if (!pid) {
         return [self kernproc];
     }
     uint64_t proc = [self allproc];
