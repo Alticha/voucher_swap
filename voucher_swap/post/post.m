@@ -289,7 +289,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (uint64_t)kernproc {
-    uint64_t proc = 0;
+    static uint64_t proc = 0;
     if (!proc) {
         proc = kernel_read64(kernel_task + OFFSET(task, bsd_info));
         INFO("Found proc 0x%llx for PID %i", proc, 0);
