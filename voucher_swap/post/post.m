@@ -487,28 +487,6 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     return posix_spawnp(pid, path, file_actions, attrp, (char **)&argv, envp);
 }
 
-// ldid2 //
-
-- (void)ldid2:(NSString *)path {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
-    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
-    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
-    char *args[] = { (char *)ldid2, "-S", (char *)path.UTF8String };
-    [self execute:args];
-    unlink(ldid2);
-}
-
-- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:entitlements]) return;
-    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
-    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
-    NSString *s = [@"-S" stringByAppendingString:entitlements];
-    char *args[] = { (char *)ldid2, (char *)s.UTF8String, (char *)path.UTF8String };
-    [self execute:args];
-    unlink(ldid2);
-}
-
 // Procs //
 
 - (uint64_t)allproc {
