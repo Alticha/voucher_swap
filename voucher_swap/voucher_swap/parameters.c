@@ -87,6 +87,6 @@ parameters_init() {
     }
     COUNT_PER_BLOCK(ipc_port) = BLOCK_SIZE(ipc_port) / SIZE(ipc_port);
     COUNT_PER_BLOCK(ipc_voucher) = BLOCK_SIZE(ipc_voucher) / SIZE(ipc_voucher);
-    printf("[IMPORTANT] About to exploit. If this doesn't work, %s \"%s\" to bsd_info_0x368[] or open a new issue on github.com/alticha/voucher_swap.\n", OFFSET(task, bsd_info) == 0x368 ? "remove" : "add", platform.machine);
+    //LOG("[IMPORTANT] About to exploit. If this doesn't work, %s \"%s\" to bsd_info_0x368[] or open a new issue on github.com/alticha/voucher_swap.\n", OFFSET(task, bsd_info) == 0x368 ? "remove" : "add", platform.machine);
     return true;
 }
