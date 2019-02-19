@@ -102,6 +102,6 @@ extern unsigned off_sandbox_slot; // 0x10
 #define CS_SIGNED 0x20000000 /* process has a signature (may have gone invalid) */
 #define CS_DEV_CODE 0x40000000 /* code is dev signed, cannot be loaded into prod signed code (will go away with rdar://problem/28322552) */
 
-void offs_init(void);
+_Bool offs_init(void);
 
 #endif
