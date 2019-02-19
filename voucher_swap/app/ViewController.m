@@ -108,7 +108,7 @@ extern BOOL SHOULD_LOG;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    Post *post = [[Post alloc] init];
+    Post *post = [Post alloc];
     struct utsname u = [post uname];
     bool isSupported = [post isSupported];
     if (!isSupported) {
