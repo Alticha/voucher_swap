@@ -30,10 +30,10 @@
 		E05A35E922135722007EA094 /* libmis.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E05A35E822135722007EA094 /* libmis.tbd */; };
 		E05A361D22138073007EA094 /* libarchive.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E05A361C22138073007EA094 /* libarchive.2.tbd */; };
 		E05A362122138211007EA094 /* ArchiveFile.m in Sources */ = {isa = PBXBuildFile; fileRef = E05A361F22138211007EA094 /* ArchiveFile.m */; };
-		E05A3623221382EB007EA094 /* entitlements.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = E05A361922137852007EA094 /* entitlements.entitlements */; };
 		E05A362622138FCA007EA094 /* bin.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E05A362522138FCA007EA094 /* bin.tar.gz */; };
 		E05A362822138FD2007EA094 /* ldid2.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E05A362722138FD2007EA094 /* ldid2.tar.gz */; };
 		E06F1A7B220CFB4600E732A9 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = E06F1A79220CFB4600E732A9 /* patchfinder64.c */; };
+		E08505EC221CA5CF00E19F12 /* ent.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = E08505EB221CA5C800E19F12 /* ent.entitlements */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,7 +44,6 @@
 		551FBBE221C43356005F5DC9 /* IOKitLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOKitLib.h; sourceTree = "<group>"; };
 		5581FD0A21D45753009FC879 /* kernel_call.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kernel_call.h; sourceTree = "<group>"; };
 		5581FD0B21D45753009FC879 /* kernel_call.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = kernel_call.c; sourceTree = "<group>"; };
-		5581FD0D21D459C7009FC879 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 		5581FD0E21D459C7009FC879 /* log.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = log.m; sourceTree = "<group>"; };
 		5581FD1021D5BEB5009FC879 /* platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
 		5581FD1121D5BEB5009FC879 /* platform.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = platform.c; sourceTree = "<group>"; };
@@ -80,7 +79,6 @@
 		E05930E62212074C0012E9B4 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E05A35E422135391007EA094 /* CSCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CSCommon.h; sourceTree = "<group>"; };
 		E05A35E822135722007EA094 /* libmis.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libmis.tbd; path = usr/lib/libmis.tbd; sourceTree = SDKROOT; };
-		E05A361922137852007EA094 /* entitlements.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = entitlements.entitlements; sourceTree = "<group>"; };
 		E05A361C22138073007EA094 /* libarchive.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libarchive.2.tbd; path = usr/lib/libarchive.2.tbd; sourceTree = SDKROOT; };
 		E05A361E221381B9007EA094 /* archive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = archive.h; sourceTree = "<group>"; };
 		E05A361F22138211007EA094 /* ArchiveFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArchiveFile.m; sourceTree = "<group>"; };
@@ -90,6 +88,8 @@
 		E05A362722138FD2007EA094 /* ldid2.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = ldid2.tar.gz; sourceTree = "<group>"; };
 		E06F1A79220CFB4600E732A9 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
 		E06F1A7A220CFB4600E732A9 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
+		E08505EA221CA51400E19F12 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
+		E08505EB221CA5C800E19F12 /* ent.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ent.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,7 +176,7 @@
 				558AB70421C9C78200FA1594 /* kernel_memory.c */,
 				5581FD2121D6B8BC009FC879 /* kernel_slide.h */,
 				5581FD2221D6B8BC009FC879 /* kernel_slide.c */,
-				5581FD0D21D459C7009FC879 /* log.h */,
+				E08505EA221CA51400E19F12 /* log.h */,
 				5581FD0E21D459C7009FC879 /* log.m */,
 				551FBBDC21C2E174005F5DC9 /* parameters.h */,
 				551FBBDD21C2E174005F5DC9 /* parameters.c */,
@@ -217,7 +217,7 @@
 		E05A36242213891E007EA094 /* other */ = {
 			isa = PBXGroup;
 			children = (
-				E05A361922137852007EA094 /* entitlements.entitlements */,
+				E08505EB221CA5C800E19F12 /* ent.entitlements */,
 				E05A362522138FCA007EA094 /* bin.tar.gz */,
 				E05A362722138FD2007EA094 /* ldid2.tar.gz */,
 				E05A362022138211007EA094 /* ArchiveFile.h */,
@@ -285,7 +285,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E05A3623221382EB007EA094 /* entitlements.entitlements in Resources */,
+				E08505EC221CA5CF00E19F12 /* ent.entitlements in Resources */,
 				E05A362822138FD2007EA094 /* ldid2.tar.gz in Resources */,
 				E05930E72212074C0012E9B4 /* LaunchScreen.storyboard in Resources */,
 				55F5FBF321BB2C3300F3AB28 /* Assets.xcassets in Resources */,
