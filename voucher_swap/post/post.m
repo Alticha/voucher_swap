@@ -56,14 +56,17 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     // If we can, initialise patchfinder64
     [self initialise_patchfinder64];
     // If we can, run a test binary
+    // Expected return code: 12 (main returns 12)
     [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
-    [self execute:NSStringToArgs([[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"])];
+    NSString *binPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"];
+    int ret = [self execute:NSStringToArgs(binPath)];
+    unlink(binPath.UTF8String);
     // If we can, terminate patchfinder64
     [self terminate_patchfinder64];
     // For debugging purposes
     [self debug];
     // Did we succeed?
-    bool success = [self isRoot] && ![self isSandboxed];
+    bool success = [self isRoot] && ![self isSandboxed] && ret == 12;
     if (success) INFO("Post-exploitation was successful!");
     if (!success) INFO("Post-exploitation failed.");
     return success;
@@ -204,7 +207,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     kernel_write32(ucred + off_ucred_cr_uid, uid);
     kernel_write32(ucred + off_ucred_cr_ruid, uid);
     kernel_write32(ucred + off_ucred_cr_svuid, uid);
-    INFO("Overwritten UID to %i for proc 0x%llx", uid, proc);
+    INFO("Overwritten UID to %i for proc at 0x%llx", uid, proc);
 }
 
 - (void)setGID:(gid_t)gid {
@@ -218,7 +221,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     kernel_write32(proc + off_p_rgid, gid);
     kernel_write32(ucred + off_ucred_cr_rgid, gid);
     kernel_write32(ucred + off_ucred_cr_svgid, gid);
-    INFO("Overwritten GID to %i for proc 0x%llx", gid, proc);
+    INFO("Overwritten GID to %i for proc at 0x%llx", gid, proc);
 }
 
 - (void)setUIDAndGID:(int)both {
@@ -259,7 +262,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)sandbox:(uint64_t)proc {
-    INFO("Sandboxed proc 0x%llx", proc);
+    INFO("Sandboxed proc at 0x%llx", proc);
     if ([self isSandboxed]) return;
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
@@ -272,32 +275,12 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (void)unsandbox:(uint64_t)proc {
-    INFO("Unsandboxed proc 0x%llx", proc);
+    INFO("Unsandboxed proc at 0x%llx", proc);
     if (![self isSandboxed]) return;
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
     if (SANDBOX == 0) SANDBOX = kernel_read64(cr_label + off_sandbox_slot);
     kernel_write64(cr_label + off_sandbox_slot, 0);
-}
-
-// ldid2 //
-
-- (void)ldid2:(NSString *)path {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
-    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
-    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
-    char *args[] = { (char *)ldid2, "-S", (char *)path.UTF8String };
-    [self execute:args];
-}
-
-- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:entitlements]) return;
-    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
-    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
-    NSString *s = [@"-S" stringByAppendingString:entitlements];
-    char *args[] = { (char *)ldid2, (char *)s.UTF8String, (char *)path.UTF8String };
-    [self execute:args];
 }
 
 // Trust Cache //
@@ -341,7 +324,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     }
     NSArray *cdhashes = info[@"cdhashes"];
     NSArray *algos = info[@"digest-algorithms"];
-    NSUInteger algoIndex = [algos indexOfObject:@2];
+    NSUInteger algoIndex = [algos indexOfObject:@(2)];
     
     if (cdhashes == nil) {
         ERROR("%s: no cdhashes", filename);
@@ -362,7 +345,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     NSMutableDictionary *filtered = [hashes mutableCopy];
     for (NSData *cdhash in [filtered allKeys]) {
         if ([self isInAMFIStaticCache:filtered[cdhash]]) {
-            WARNING("%s: already in static trustcache, not reinjecting", [filtered[cdhash] UTF8String]);
+            //WARNING("%s: already in static trustcache, not reinjecting", [filtered[cdhash] UTF8String]);
             [filtered removeObjectForKey:cdhash];
         }
     }
@@ -382,7 +365,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
             NSData *cdhash = [NSData dataWithBytesNoCopy:dataref length:20 freeWhenDone:NO];
             NSString *hashName = filtered[cdhash];
             if (hashName != nil) {
-                WARNING("%s: already in dynamic trustcache, not reinjecting", [hashName UTF8String]);
+                //WARNING("%s: already in dynamic trustcache, not reinjecting", [hashName UTF8String]);
                 [filtered removeObjectForKey:cdhash];
                 if ([filtered count] == 0) {
                     free(data);
@@ -392,7 +375,6 @@ static int SAVED_SET[3] = { 0, 0, 0 };
         }
         free(data);
     }
-    INFO("Actually injecting %lu keys", [[filtered allKeys] count]);
     return [filtered allKeys];
 }
 
@@ -430,7 +412,6 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     }
     NSArray *filtered = [self filteredHashes:mem.next hashes:hashes];
     unsigned hashesToInject = (unsigned)[filtered count];
-    INFO("%u new hashes to inject", hashesToInject);
     if (hashesToInject < 1) {
         return errors;
     }
@@ -450,6 +431,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     kwrite(kernel_trust, &mem, sizeof(mem));
     kwrite(kernel_trust + sizeof(mem), buffer, mem.count * 20);
     kernel_write64(trust_chain, kernel_trust);
+    INFO("%s", (char *)[NSString stringWithFormat:@"Injected %i new hash%s", hashesToInject, hashesToInject == 1 ? "" : "es"].UTF8String);
     return (int)errors;
 }
 
@@ -457,20 +439,74 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 - (int)execute:(char *[])args {
     if (![self is_patchfinder64_initialised]) return false;
-    INFO("Executing %s...", args[0]);
-    pid_t pid, s;
-    if ([self posix_spawn:&pid path:args[0] file_actions:NULL attrp:NULL argv:(char **)&args envp:NULL]) {
-        ERROR("Failed to execute %s", args[0]);
+    INFO("Executing \"%s\"...", args[0]);
+    pid_t pid, ret;
+    posix_spawn_file_actions_t file_actions;
+    posix_spawn_file_actions_init(&file_actions);
+    posix_spawn_file_actions_addopen(&file_actions, 1, [[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String, O_RDWR | O_CREAT | O_TRUNC, 0777);
+    posix_spawn_file_actions_adddup2(&file_actions, 1, 2);
+    ret = [self posix_spawnp:&pid path:args[0] file_actions:&file_actions attrp:NULL argv:(char **)&args envp:NULL];
+    if (ret) {
+        unlink([[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String);
+        ERROR("Failed to execute \"%s\"", args[0]);
+        return ret;
     }
-    waitpid(pid, &s, 0);
-    INFO("Executed %s", args[0]);
-    return WEXITSTATUS(s);
+    waitpid(pid, &ret, 0);
+    NSError *err;
+    NSString *log = [NSString stringWithContentsOfFile:[[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"] encoding:NSUTF8StringEncoding error:&err];
+    bool starstarstarstuff = false;
+    if (!err && starstarstarstuff && log.UTF8String != NULL) LOG("*** BEGINNING OUTPUT OF \"%s\" ***\n", args[0]);
+    if (!err && log.UTF8String != NULL) LOG("%s%s", log.UTF8String, [log hasSuffix:@"\n"] ? "" : "\n");
+    if (!err && starstarstarstuff && log.UTF8String != NULL) LOG("*** ENDED OUTPUT OF \"%s\" ***\n", args[0]);
+    unlink([[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String);
+    NSString *str = @"exited with code";
+    if (WIFEXITED(ret)) {
+        ret = WEXITSTATUS(ret);
+    } else if (WIFSIGNALED(ret)) {
+        ret = WTERMSIG(ret);
+        str = @"exited due to signal";
+    } else if (WIFSTOPPED(ret)) {
+        ret = WSTOPSIG(ret);
+        str = @"stopped due to signal";
+    } else {
+        ret = 0;
+    }
+    INFO("Executed \"%s\", which has %s %i", args[0], str.UTF8String, ret);
+    return ret;
 }
 
 - (int)posix_spawn:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
     if (![self is_patchfinder64_initialised]) return false;
     [self injectTrustCache:@[@(path)]];
     return posix_spawn(pid, path, file_actions, attrp, (char **)&argv, envp);
+}
+
+- (int)posix_spawnp:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
+    if (![self is_patchfinder64_initialised]) return false;
+    [self injectTrustCache:@[@(path)]];
+    return posix_spawnp(pid, path, file_actions, attrp, (char **)&argv, envp);
+}
+
+// ldid2 //
+
+- (void)ldid2:(NSString *)path {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
+    char *args[] = { (char *)ldid2, "-S", (char *)path.UTF8String };
+    [self execute:args];
+    unlink(ldid2);
+}
+
+- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:entitlements]) return;
+    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    const char *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"].UTF8String;
+    NSString *s = [@"-S" stringByAppendingString:entitlements];
+    char *args[] = { (char *)ldid2, (char *)s.UTF8String, (char *)path.UTF8String };
+    [self execute:args];
+    unlink(ldid2);
 }
 
 // Procs //
@@ -496,7 +532,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     static uint64_t proc = 0;
     if (!proc) {
         proc = kernel_read64(current_task + OFFSET(task, bsd_info));
-        INFO("Found proc 0x%llx for PID %i", proc, getpid());
+        INFO("Found proc at 0x%llx for PID %i", proc, getpid());
     }
     return proc;
 }
@@ -505,7 +541,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     static uint64_t proc = 0;
     if (!proc) {
         proc = kernel_read64(kernel_task + OFFSET(task, bsd_info));
-        INFO("Found proc 0x%llx for PID %i", proc, 0);
+        INFO("Found proc at 0x%llx for PID %i", proc, 0);
     }
     return proc;
 }
@@ -519,7 +555,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     uint64_t proc = [self allproc];
     while (proc) {
         if (kernel_read32(proc + off_p_pid) == pid) {
-            INFO("Found proc 0x%llx for PID %i", proc, pid);
+            INFO("Found proc at 0x%llx for PID %i", proc, pid);
             return proc;
         }
         proc = kernel_read64(proc);
@@ -527,7 +563,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     return 0;
 }
 
-- (pid_t)pid_for_name:(NSString *)name {
+- (pid_t)pid_for_name:(NSString *)name /* case-sensitive process name or executable path */ {
     [self save];
     [self root];
     static int maxArgumentSize = 0;
