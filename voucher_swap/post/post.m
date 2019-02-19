@@ -47,6 +47,8 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     if (!MACH_PORT_VALID(kernel_task_port)) {
         return false;
     }
+    // Init offsets
+    offs_init();
     // Get root
     [self root];
     // Unsandbox
