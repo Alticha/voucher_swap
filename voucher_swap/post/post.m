@@ -307,15 +307,17 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     extern int MISValidateSignatureAndCopyInfo(NSString *file, NSDictionary *options, NSDictionary **info);
     extern NSString *kMISValidationOptionAllowAdHocSigning;
     extern NSString *kMISValidationOptionRespectUppTrustAndAuthorization;
-    return MISValidateSignatureAndCopyInfo(path, @{kMISValidationOptionAllowAdHocSigning: @YES, kMISValidationOptionRespectUppTrustAndAuthorization: @YES}, NULL) == 0;
+    return !MISValidateSignatureAndCopyInfo(path, @{kMISValidationOptionAllowAdHocSigning: @YES, kMISValidationOptionRespectUppTrustAndAuthorization: @YES}, NULL);
 }
 
 - (NSString *)cdhashFor:(NSString *)file {
     NSString *cdhash = nil;
-    SecStaticCodeRef staticCode;
-    OSStatus SecStaticCodeCreateWithPathAndAttributes(CFURLRef path, SecCSFlags flags, CFDictionaryRef attributes, SecStaticCodeRef  _Nullable *staticCode);
-    OSStatus result = SecStaticCodeCreateWithPathAndAttributes(CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)file, kCFURLPOSIXPathStyle, false), kSecCSDefaultFlags, NULL, &staticCode);
     const char *filename = file.UTF8String;
+    SecStaticCodeRef staticCode;
+    
+    OSStatus SecStaticCodeCreateWithPathAndAttributes(CFURLRef path, SecCSFlags flags, CFDictionaryRef attributes, SecStaticCodeRef _Nullable *staticCode);
+    OSStatus result = SecStaticCodeCreateWithPathAndAttributes(CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)file, kCFURLPOSIXPathStyle, false), kSecCSDefaultFlags, NULL, &staticCode);
+    
     if (result != errSecSuccess) {
         CFStringRef (*_SecCopyErrorMessageString)(OSStatus status, void * __nullable reserved) = NULL;
         if (_SecCopyErrorMessageString != NULL) {
@@ -333,13 +335,13 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     result = SecCodeCopySigningInformation(staticCode, kSecCSDefaultFlags, &cfinfo);
     NSDictionary *info = CFBridgingRelease(cfinfo);
     CFRelease(staticCode);
-    if (result != errSecSuccess) {
+    if (result) {
         ERROR("Unable to copy cdhash info for %s", filename);
         return nil;
     }
     NSArray *cdhashes = info[@"cdhashes"];
     NSArray *algos = info[@"digest-algorithms"];
-    NSUInteger algoIndex = [algos indexOfObject:@(2)];;
+    NSUInteger algoIndex = [algos indexOfObject:@2];
     
     if (cdhashes == nil) {
         ERROR("%s: no cdhashes", filename);
@@ -350,7 +352,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     } else {
         cdhash = [cdhashes objectAtIndex:algoIndex];
         if (cdhash == nil) {
-            ERROR("%s: missing SHA256 cdhash entry", file.UTF8String);
+            ERROR("%s: missing SHA256 cdhash entry", filename);
         }
     }
     return cdhash;
@@ -370,7 +372,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
         unsigned int count;
     } __attribute__((packed)) search;
     search.next = trust_chain;
-    while (search.next != 0) {
+    while (search.next) {
         uint64_t searchAddr = search.next;
         kread(searchAddr, &search, sizeof(struct trust_mem));
         char *data = malloc(search.count * 20);
