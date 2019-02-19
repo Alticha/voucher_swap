@@ -268,7 +268,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     proc = [self selfproc];
     // i think the max pid value is 99998?
     for (pid_t i = 0; i < 99998 - getpid(); i++) {
-        uint64_t tmp_proc = kernel_read64(proc + off_p_next);
+        uint64_t tmp_proc = kernel_read64(proc + 8);
         if (!tmp_proc /* if we can't read here, the previously read address was allproc */) {
             INFO("Found allproc: 0x%llx", proc);
             return proc;
