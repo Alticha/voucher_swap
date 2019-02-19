@@ -1,11 +1,13 @@
 #import <UIKit/UIDevice.h>
 #import "offsets.h"
+#import "log.h"
 
 #define SYSTEM_VERSION_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
 #define SYSTEM_VERSION_GREATER_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+#define SYSTEM_VERSION_BETWEEN_OR_EQUAL_TO(a, b) (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(a) && SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(b))
 
 // proc_t
 unsigned off_p_pid = 0x60;
@@ -79,8 +81,8 @@ unsigned off_ipc_space_is_table = 0x20;
 unsigned off_amfi_slot = 0x8;
 unsigned off_sandbox_slot = 0x10;
 
-void offs_init() {
-    if (SYSTEM_VERSION_LESS_THAN(@"12.0")) {
+_Bool offs_init() {
+    if (SYSTEM_VERSION_BETWEEN_OR_EQUAL_TO(@"11.0", @"12.0")) {
         off_p_pid = 0x10;
         off_task = 0x18;
         off_p_uid = 0x30;
@@ -97,5 +99,26 @@ void offs_init() {
         off_itk_space = 0x308;
         off_csb_platform_binary = 0xA4;
         off_csb_platform_path = 0xA8;
+    } else if (SYSTEM_VERSION_BETWEEN_OR_EQUAL_TO(@"12.0", @"13.0")) {
+        off_p_pid = 0x60;
+        off_task = 0x10;
+        off_p_uid = 0x28;
+        off_p_gid = 0x2C;
+        off_p_ruid = 0x30;
+        off_p_rgid = 0x34;
+        off_p_ucred = 0xF8;
+        off_p_csflags = 0x290;
+        off_p_comm = 0x250;
+        off_p_textvp = 0x230;
+        off_p_textoff = 0x238;
+        off_p_cputype = 0x2A8;
+        off_p_cpu_subtype = 0x2AC;
+        off_itk_space = 0x300;
+        off_csb_platform_binary = 0xA8;
+        off_csb_platform_path = 0xAC;
+    } else {
+        ERROR("iOS version unsupported.");
+        return false;
     }
+    return true;
 }
