@@ -30,10 +30,8 @@
 		E05A35E922135722007EA094 /* libmis.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E05A35E822135722007EA094 /* libmis.tbd */; };
 		E05A361D22138073007EA094 /* libarchive.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E05A361C22138073007EA094 /* libarchive.2.tbd */; };
 		E05A362122138211007EA094 /* ArchiveFile.m in Sources */ = {isa = PBXBuildFile; fileRef = E05A361F22138211007EA094 /* ArchiveFile.m */; };
-		E05A362622138FCA007EA094 /* bin.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E05A362522138FCA007EA094 /* bin.tar.gz */; };
-		E05A362822138FD2007EA094 /* ldid2.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E05A362722138FD2007EA094 /* ldid2.tar.gz */; };
 		E06F1A7B220CFB4600E732A9 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = E06F1A79220CFB4600E732A9 /* patchfinder64.c */; };
-		E08505EC221CA5CF00E19F12 /* ent.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = E08505EB221CA5C800E19F12 /* ent.entitlements */; };
+		E07B8D2B221F5D6500356BA8 /* bin.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = E07B8D28221F5D6500356BA8 /* bin.tar.gz */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,12 +82,13 @@
 		E05A361F22138211007EA094 /* ArchiveFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArchiveFile.m; sourceTree = "<group>"; };
 		E05A362022138211007EA094 /* ArchiveFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArchiveFile.h; sourceTree = "<group>"; };
 		E05A362222138243007EA094 /* archive_entry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = archive_entry.h; sourceTree = "<group>"; };
-		E05A362522138FCA007EA094 /* bin.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = bin.tar.gz; sourceTree = "<group>"; };
-		E05A362722138FD2007EA094 /* ldid2.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = ldid2.tar.gz; sourceTree = "<group>"; };
 		E06F1A79220CFB4600E732A9 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
 		E06F1A7A220CFB4600E732A9 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
+		E07B8D25221F5D6500356BA8 /* ent.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = ent.entitlements; sourceTree = "<group>"; };
+		E07B8D26221F5D6500356BA8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		E07B8D27221F5D6500356BA8 /* bin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bin.m; sourceTree = "<group>"; };
+		E07B8D28221F5D6500356BA8 /* bin.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = bin.tar.gz; sourceTree = "<group>"; };
 		E08505EA221CA51400E19F12 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
-		E08505EB221CA5C800E19F12 /* ent.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ent.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,7 +192,7 @@
 		E02DFA862203CE6B00AE2324 /* post */ = {
 			isa = PBXGroup;
 			children = (
-				E05A36242213891E007EA094 /* other */,
+				E07B8D2C221F5E7100356BA8 /* other */,
 				E02DFA872203CE6B00AE2324 /* post.h */,
 				E02DFA8A2203CE6B00AE2324 /* post.m */,
 				E02DFA882203CE6B00AE2324 /* offsets.h */,
@@ -214,18 +213,27 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		E05A36242213891E007EA094 /* other */ = {
+		E07B8D24221F5D6500356BA8 /* bin */ = {
 			isa = PBXGroup;
 			children = (
-				E08505EB221CA5C800E19F12 /* ent.entitlements */,
-				E05A362522138FCA007EA094 /* bin.tar.gz */,
-				E05A362722138FD2007EA094 /* ldid2.tar.gz */,
+				E07B8D25221F5D6500356BA8 /* ent.entitlements */,
+				E07B8D26221F5D6500356BA8 /* Makefile */,
+				E07B8D27221F5D6500356BA8 /* bin.m */,
+				E07B8D28221F5D6500356BA8 /* bin.tar.gz */,
+			);
+			path = bin;
+			sourceTree = "<group>";
+		};
+		E07B8D2C221F5E7100356BA8 /* other */ = {
+			isa = PBXGroup;
+			children = (
+				E07B8D24221F5D6500356BA8 /* bin */,
 				E05A362022138211007EA094 /* ArchiveFile.h */,
 				E05A361F22138211007EA094 /* ArchiveFile.m */,
 				E05A361E221381B9007EA094 /* archive.h */,
 				E05A362222138243007EA094 /* archive_entry.h */,
 			);
-			name = other;
+			path = other;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -285,12 +293,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E08505EC221CA5CF00E19F12 /* ent.entitlements in Resources */,
-				E05A362822138FD2007EA094 /* ldid2.tar.gz in Resources */,
 				E05930E72212074C0012E9B4 /* LaunchScreen.storyboard in Resources */,
 				55F5FBF321BB2C3300F3AB28 /* Assets.xcassets in Resources */,
-				E05A362622138FCA007EA094 /* bin.tar.gz in Resources */,
 				E05930E5221207480012E9B4 /* Main.storyboard in Resources */,
+				E07B8D2B221F5D6500356BA8 /* bin.tar.gz in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
