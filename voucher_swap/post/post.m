@@ -284,7 +284,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 // Trust Cache //
-// thx sbingner
+// thx sbingner/xerub
 
 - (bool)isInAMFIStaticCache:(NSString *)path {
     extern int MISValidateSignatureAndCopyInfo(NSString *file, NSDictionary *options, NSDictionary **info);
@@ -432,7 +432,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     kwrite(kernel_trust + sizeof(mem), buffer, mem.count * 20);
     kernel_write64(trust_chain, kernel_trust);
     INFO("%s", (char *)[NSString stringWithFormat:@"Injected %i new hash%s", hashesToInject, hashesToInject == 1 ? "" : "es"].UTF8String);
-    return (int)errors;
+    return errors;
 }
 
 // Execute //
