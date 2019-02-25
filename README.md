@@ -18,4 +18,6 @@ Also runs a binary on non-A12 devices.
 - xerub
 <br>patchfinder64
 - sbingner
-<br>ArchiveFile and trust cache injection
+<br>ArchiveFile
+- sbingner/xerub
+trust cache injection
