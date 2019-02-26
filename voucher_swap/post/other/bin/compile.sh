@@ -1,3 +1,20 @@
 # bash script to compile bin
-# hope you're in the right directory
-rm bin &> /dev/null; rm bin.tar.gz &> /dev/null; xcrun -sdk iphoneos clang -arch arm64 bin.c; mv a.out bin; ldid2 -Sent.entitlements bin; tar -cf bin.tar.gz bin; rm bin &> /dev/null;
+if [[ "$0" != "./compile.sh" ]]; then
+    echo "Argument zero is not ./compile.sh"
+    exit
+fi
+echo "Compiling..."
+rm bin &> /dev/null
+xcrun -sdk iphoneos clang -arch arm64 bin.c
+mv a.out bin
+echo "Done"
+echo "Signing with entitlements..."
+ldid2 -Sent.entitlements bin
+echo "Done"
+echo "Tarring..."
+rm bin.tar.gz &> /dev/null
+tar -cf bin.tar.gz bin
+echo "Done"
+echo "Cleaning up..."
+rm bin &> /dev/null;
+echo "Done"
