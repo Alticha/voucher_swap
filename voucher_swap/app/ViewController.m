@@ -114,6 +114,8 @@ extern BOOL SHOULD_LOG;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+	INFO("Version %s", ((NSString *)[[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleShortVersionString"]).UTF8String);
+    LOG("%s\n", ((NSString *)[[[NSBundle mainBundle].bundlePath componentsSeparatedByString:@"/"] objectAtIndex:5]).UTF8String);
     Post *post = [Post alloc];
     struct utsname u = [post uname];
     bool isSupported = [post isSupported];
