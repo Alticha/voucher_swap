@@ -2,7 +2,7 @@
 A fork of bazad's voucher_swap.
 <br>
 # Exploitation
-Currently supports all 16K devices.
+Supports all 16K devices.
 <br>
 # Post Exploitation
 Currently gets root and unsandboxes the application.
