@@ -59,7 +59,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     // Expected return code: 0
     [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
     NSString *binPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"];
-    NSArray *args = @[binPath, @"2"];
+    NSArray *args = @[binPath, @"Test!"];
     int ret = [self execute:args];
     unlink(binPath.UTF8String);
     // If we can, terminate patchfinder64
