@@ -84,9 +84,10 @@
 		E05A362222138243007EA094 /* archive_entry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = archive_entry.h; sourceTree = "<group>"; };
 		E06F1A79220CFB4600E732A9 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
 		E06F1A7A220CFB4600E732A9 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
+		E0757DCC2225FAAA00784914 /* bin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bin.c; sourceTree = "<group>"; };
+		E0757DCE2225FAB000784914 /* compile.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = compile.sh; sourceTree = "<group>"; };
+		E0757DD0222607DF00784914 /* ldid2 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = ldid2; sourceTree = "<group>"; };
 		E07B8D25221F5D6500356BA8 /* ent.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = ent.entitlements; sourceTree = "<group>"; };
-		E07B8D26221F5D6500356BA8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		E07B8D27221F5D6500356BA8 /* bin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bin.m; sourceTree = "<group>"; };
 		E07B8D28221F5D6500356BA8 /* bin.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = bin.tar.gz; sourceTree = "<group>"; };
 		E08505EA221CA51400E19F12 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -217,8 +218,9 @@
 			isa = PBXGroup;
 			children = (
 				E07B8D25221F5D6500356BA8 /* ent.entitlements */,
-				E07B8D26221F5D6500356BA8 /* Makefile */,
-				E07B8D27221F5D6500356BA8 /* bin.m */,
+				E0757DD0222607DF00784914 /* ldid2 */,
+				E0757DCE2225FAB000784914 /* compile.sh */,
+				E0757DCC2225FAAA00784914 /* bin.c */,
 				E07B8D28221F5D6500356BA8 /* bin.tar.gz */,
 			);
 			path = bin;
