@@ -56,17 +56,18 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     // If we can, initialise patchfinder64
     [self initialise_patchfinder64];
     // If we can, run a test binary
-    // Expected return code: 12 (main returns 12)
+    // Expected return code: 0
     [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
     NSString *binPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"];
-    int ret = [self execute:NSStringToArgs(binPath)];
+    NSArray *args = @[binPath, @"2"];
+    int ret = [self execute:args];
     unlink(binPath.UTF8String);
     // If we can, terminate patchfinder64
     [self terminate_patchfinder64];
     // For debugging purposes
     [self debug];
     // Did we succeed?
-    bool success = [self isRoot] && ![self isSandboxed] && ret == 12;
+    bool success = [self isRoot] && ![self isSandboxed] && ((![self isA12] && !ret) || [self isA12]);
     if (success) INFO("Post-exploitation was successful!");
     if (!success) INFO("Post-exploitation failed.");
     return success;
@@ -437,27 +438,37 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 
 // Execute //
 
-- (int)execute:(char *[])args {
+- (int)execute:(NSArray *)arguments {
     if (![self is_patchfinder64_initialised]) return false;
-    INFO("Executing \"%s\"...", args[0]);
+    INFO("Executing \"%s\"...", ((NSString *)[arguments objectAtIndex:0]).UTF8String);
     pid_t pid, ret;
     posix_spawn_file_actions_t file_actions;
     posix_spawn_file_actions_init(&file_actions);
     posix_spawn_file_actions_addopen(&file_actions, 1, [[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String, O_RDWR | O_CREAT | O_TRUNC, 0777);
     posix_spawn_file_actions_adddup2(&file_actions, 1, 2);
-    ret = [self posix_spawnp:&pid path:args[0] file_actions:&file_actions attrp:NULL argv:(char **)&args envp:NULL];
+    char **args = (char **)malloc(((uint)arguments.count + 1) * sizeof(char*));
+    for (uint i = 0; i < (uint)arguments.count; i++) {
+        args[i] = strdup(((NSString *)[arguments objectAtIndex:i]).UTF8String);
+    }
+    args[(uint)arguments.count] = NULL;
+    ret = [self posix_spawnp:&pid path:args[0] file_actions:&file_actions attrp:NULL argv:args envp:NULL];
+    for (uint i = 0; args[i] != NULL; i++) {
+        free(args[i]);
+    }
+    free(args);
     if (ret) {
         unlink([[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String);
-        ERROR("Failed to execute \"%s\"", args[0]);
+        ERROR("Failed to execute \"%s\"", ((NSString *)[arguments objectAtIndex:0]).UTF8String);
         return ret;
     }
     waitpid(pid, &ret, 0);
     NSError *err;
     NSString *log = [NSString stringWithContentsOfFile:[[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"] encoding:NSUTF8StringEncoding error:&err];
-    bool starstarstarstuff = false;
-    if (!err && starstarstarstuff && log.UTF8String != NULL) LOG("*** BEGINNING OUTPUT OF \"%s\" ***\n", args[0]);
-    if (!err && log.UTF8String != NULL) LOG("%s%s", log.UTF8String, [log hasSuffix:@"\n"] ? "" : "\n");
-    if (!err && starstarstarstuff && log.UTF8String != NULL) LOG("*** ENDED OUTPUT OF \"%s\" ***\n", args[0]);
+    bool starstarstarstuff = false; // enable this if ya want
+    bool chk = !err && log.UTF8String != NULL;// && ![log isEqual:@""];
+    if (starstarstarstuff && chk) LOG("*** BEGINNING OUTPUT OF \"%s\" ***\n", ((NSString *)[arguments objectAtIndex:0]).UTF8String);
+    if (chk) LOG("%s%s", log.UTF8String, [log hasSuffix:@"\n"] ? "" : "\n");
+    if (starstarstarstuff && chk) LOG("*** ENDED OUTPUT OF \"%s\" ***\n", ((NSString *)[arguments objectAtIndex:0]).UTF8String);
     unlink([[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String);
     NSString *str = @"exited with code";
     if (WIFEXITED(ret)) {
@@ -471,20 +482,20 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     } else {
         ret = 0;
     }
-    INFO("Executed \"%s\", which has %s %i", args[0], str.UTF8String, ret);
+    INFO("Executed \"%s\", which has %s %i", ((NSString *)[arguments objectAtIndex:0]).UTF8String, str.UTF8String, ret);
     return ret;
 }
 
 - (int)posix_spawn:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
     if (![self is_patchfinder64_initialised]) return false;
     [self injectTrustCache:@[@(path)]];
-    return posix_spawn(pid, path, file_actions, attrp, (char **)&argv, envp);
+    return posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
 
 - (int)posix_spawnp:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
     if (![self is_patchfinder64_initialised]) return false;
     [self injectTrustCache:@[@(path)]];
-    return posix_spawnp(pid, path, file_actions, attrp, (char **)&argv, envp);
+    return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }
 
 // Procs //
