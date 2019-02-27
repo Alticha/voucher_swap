@@ -60,7 +60,6 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
     NSString *binPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"];
     NSArray *args = @[binPath, @"Test!"];
-    [self ldid2:binPath entitlements:@"ent.xml"];
     int ret = [self execute:args];
     unlink(binPath.UTF8String);
     // If we can, terminate patchfinder64
@@ -296,6 +295,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (NSString *)cdhashFor:(NSString *)file {
+    static bool retried = false;
     NSString *cdhash = nil;
     const char *filename = file.UTF8String;
     SecStaticCodeRef staticCode;
@@ -329,10 +329,22 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     NSUInteger algoIndex = [algos indexOfObject:@(2)];
     
     if (cdhashes == nil) {
+        if (!retried) {
+            retried = true;
+            [self ldid2:file entitlements:@"ent.xml"];
+            return [self cdhashFor:file];
+        }
+        retried = false;
         ERROR("%s: no cdhashes", filename);
     } else if (algos == nil) {
         ERROR("%s: no algos", filename);
     } else if (algoIndex == NSNotFound) {
+        if (!retried) {
+            retried = true;
+            [self ldid2:file entitlements:@"ent.xml"];
+            return [self cdhashFor:file];
+        }
+        retried = false;
         ERROR("%s: does not have SHA256 hash", filename);
     } else {
         cdhash = [cdhashes objectAtIndex:algoIndex];
