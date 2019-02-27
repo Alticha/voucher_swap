@@ -60,6 +60,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
     NSString *binPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"];
     NSArray *args = @[binPath, @"Test!"];
+    [self ldid2:binPath entitlements:@"ent.xml"];
     int ret = [self execute:args];
     unlink(binPath.UTF8String);
     // If we can, terminate patchfinder64
@@ -446,7 +447,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     posix_spawn_file_actions_init(&file_actions);
     posix_spawn_file_actions_addopen(&file_actions, 1, [[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"].UTF8String, O_RDWR | O_CREAT | O_TRUNC, 0777);
     posix_spawn_file_actions_adddup2(&file_actions, 1, 2);
-    char **args = (char **)malloc(((uint)arguments.count + 1) * sizeof(char*));
+    char **args = (char **)malloc(((uint)arguments.count + 1) * sizeof(char *));
     for (uint i = 0; i < (uint)arguments.count; i++) {
         args[i] = strdup(((NSString *)[arguments objectAtIndex:i]).UTF8String);
     }
@@ -465,7 +466,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     NSError *err;
     NSString *log = [NSString stringWithContentsOfFile:[[NSBundle mainBundle].bundlePath stringByAppendingString:@"/TMP.log"] encoding:NSUTF8StringEncoding error:&err];
     bool starstarstarstuff = false; // enable this if ya want
-    bool chk = !err && log.UTF8String != NULL;// && ![log isEqual:@""];
+    bool chk = !err && log.UTF8String != NULL && ![log isEqual:@""];
     if (starstarstarstuff && chk) LOG("*** BEGINNING OUTPUT OF \"%s\" ***\n", ((NSString *)[arguments objectAtIndex:0]).UTF8String);
     if (chk) LOG("%s%s", log.UTF8String, [log hasSuffix:@"\n"] ? "" : "\n");
     if (starstarstarstuff && chk) LOG("*** ENDED OUTPUT OF \"%s\" ***\n", ((NSString *)[arguments objectAtIndex:0]).UTF8String);
@@ -496,6 +497,35 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     if (![self is_patchfinder64_initialised]) return false;
     [self injectTrustCache:@[@(path)]];
     return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
+}
+
+// ldid2 //
+
+- (void)ldid2:(NSString *)path {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    NSString *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"];
+    NSArray *args = @[ldid2, @"-S", path];
+    [self execute:args];
+    unlink(ldid2.UTF8String);
+}
+
+- (void)ldid2:(NSString *)path entitlements:(NSString *)entitlements {
+    if ([entitlements isEqual:@""] || [entitlements isEqual:@"ent.xml"]) {
+        NSString *path_ = [[NSBundle mainBundle].bundlePath stringByAppendingString:@"/ent.xml"];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:path_]) {
+            entitlements = path_;
+            INFO("Using default entitlements.");
+        }
+    }
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:entitlements]) return;
+    [self extract:[[NSBundle mainBundle] pathForResource:@"ldid2.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
+    NSString *ldid2 = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/ldid2"];
+    NSString *s = [@"-S" stringByAppendingString:entitlements];
+    NSArray *args = @[ldid2, s, path];
+    [self execute:args];
+    unlink(ldid2.UTF8String);
 }
 
 // Procs //

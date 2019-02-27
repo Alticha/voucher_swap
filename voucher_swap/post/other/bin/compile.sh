@@ -8,9 +8,6 @@ rm bin &> /dev/null
 xcrun -sdk iphoneos clang -arch arm64 bin.c
 mv a.out bin
 echo "Done"
-echo "Signing with entitlements..."
-ldid2 -Sent.entitlements bin
-echo "Done"
 echo "Tarring..."
 rm bin.tar.gz &> /dev/null
 tar -cf bin.tar.gz bin
