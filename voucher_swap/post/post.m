@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 #include "ArchiveFile.h"
 
-@implementation Post
+@implementation Utilities
 
 // Debugging //
 
@@ -205,9 +205,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     kernel_write32(proc + off_p_uid, uid);
     kernel_write32(proc + off_p_ruid, uid);
-    kernel_write32(ucred + off_ucred_cr_uid, uid);
-    kernel_write32(ucred + off_ucred_cr_ruid, uid);
-    kernel_write32(ucred + off_ucred_cr_svuid, uid);
+    for (uint64_t addr = ucred + off_ucred_cr_uid; addr < ucred + off_ucred_cr_svuid; addr += 4) kernel_write32(addr, uid);
     INFO("Overwritten UID to %i for proc at 0x%llx", uid, proc);
 }
 
@@ -220,8 +218,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     kernel_write32(proc + off_p_gid, gid);
     kernel_write32(proc + off_p_rgid, gid);
-    kernel_write32(ucred + off_ucred_cr_rgid, gid);
-    kernel_write32(ucred + off_ucred_cr_svgid, gid);
+    for (uint64_t addr = ucred + off_ucred_cr_rgid; addr < ucred + off_ucred_cr_svgid; addr += 4) kernel_write32(addr, gid);
     INFO("Overwritten GID to %i for proc at 0x%llx", gid, proc);
 }
 
@@ -326,7 +323,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     }
     NSArray *cdhashes = info[@"cdhashes"];
     NSArray *algos = info[@"digest-algorithms"];
-    NSUInteger algoIndex = [algos indexOfObject:@(2)];
+    NSUInteger algoIndex = [algos indexOfObject:@2];
     
     if (cdhashes == nil) {
         if (!retried) {
@@ -549,7 +546,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     // i think the max pid value is 99998?
     for (pid_t i = 0; i < 99998 - getpid(); i++) {
         uint64_t tmp_proc = kernel_read64(proc + 8);
-        if (!tmp_proc /* if we can't read here, the previously read address was allproc */) {
+        if (!tmp_proc /* if !tmp_proc, the previously read address was allproc */) {
             INFO("Found allproc: 0x%llx", proc);
             return proc;
         }
