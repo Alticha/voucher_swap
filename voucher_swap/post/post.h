@@ -1,9 +1,10 @@
 #ifndef post_h
 #define post_h
+#define Post Utilities
 
 #include <Foundation/Foundation.h>
 #include <spawn.h>
-@interface Post : NSObject
+@interface Utilities : NSObject
 
 // General
 - (bool)go;
