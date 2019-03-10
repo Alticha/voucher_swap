@@ -57,11 +57,9 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self initialise_patchfinder64];
     // If we can, run a test binary
     // Expected return code: 0
-    [self extract:[[NSBundle mainBundle] pathForResource:@"bin.tar" ofType:@"gz"] to:[[NSBundle mainBundle] bundlePath]];
-    NSString *binPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/bin"];
+    NSString *binPath = [[NSBundle mainBundle] pathForResource:@"bin" ofType:nil];
     NSArray *args = @[binPath, @"Test!"];
     int ret = [self execute:args];
-    unlink(binPath.UTF8String);
     // If we can, terminate patchfinder64
     [self terminate_patchfinder64];
     // For debugging purposes
@@ -390,7 +388,12 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 }
 
 - (int)injectTrustCache:(NSArray <NSString *> *)files {
-    uint64_t trust_chain = find_trustcache();
+    if (![self isSupportedAndIsNotA12]) return -4;
+    bool pf64ii = [self is_patchfinder64_initialised];
+    static uint64_t trust_chain = 0;
+    if (!pf64ii && !trust_chain) [self initialise_patchfinder64];
+    if (!trust_chain) find_trustcache();
+    if (!pf64ii && !trust_chain) [self terminate_patchfinder64];
     struct {
         uint64_t next;
         unsigned char uuid[16];
@@ -499,12 +502,18 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 - (int)posix_spawn:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
     if (![self is_patchfinder64_initialised]) return false;
     [self injectTrustCache:@[@(path)]];
+    struct stat s;
+    stat(path, &s);
+    if (!(s.st_mode & S_IXUSR)) chmod(path, s.st_mode + S_IXUSR);
     return posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
 
 - (int)posix_spawnp:(pid_t *)pid path:(const char *)path file_actions:(posix_spawn_file_actions_t)file_actions attrp:(posix_spawnattr_t)attrp argv:(char *[])argv envp:(char **)envp {
     if (![self is_patchfinder64_initialised]) return false;
     [self injectTrustCache:@[@(path)]];
+    struct stat s;
+    stat(path, &s);
+    if (!(s.st_mode & S_IXUSR)) chmod(path, s.st_mode + S_IXUSR);
     return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }
 
