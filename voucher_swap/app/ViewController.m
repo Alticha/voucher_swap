@@ -8,8 +8,8 @@
 #define colourFromHex(hex, alphaVal) [UIColor colorWithRed:((float)((hex & 0xFF0000) >> 16))/255.0 green:((float)((hex & 0xFF00) >> 8))/255.0 blue:((float)(hex & 0xFF))/255.0 alpha:alphaVal]
 #define bgDisabledColour colourFromHex(0xB8B8B8, 1.0)
 #define setBgDisabledColour setBackgroundColor:colourFromHex(0xB8B8B8, 1.0)
-#define bgEnabledColour setBackgroundColor:colourFromHex(0x007AFF, 1.0)
-#define setBgEnabledColour setBackgroundColor:colourFromHex(0x007AFF, 1.0)
+#define bgEnabledColour setBackgroundColor:colourFromHex(0xFF9300, 1.0)
+#define setBgEnabledColour setBackgroundColor:colourFromHex(0xFF9300, 1.0)
 #define mainThread(code) dispatch_async(dispatch_get_main_queue(), ^{ code; }); // just to clean up the code a bit
 
 @interface ViewController ()
