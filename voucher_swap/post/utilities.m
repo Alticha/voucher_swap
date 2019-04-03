@@ -58,6 +58,7 @@ static int SAVED_SET[2] = { 0, 0 };
     // Expected return code: 0
     NSString *binPath = [[NSBundle mainBundle] pathForResource:@"bin" ofType:nil];
     NSArray *args = @[binPath, @"Test!"];
+    chmod(binPath.UTF8String, 0777);
     int ret = ((NSNumber *)[[self execute:args] objectAtIndex:0]).intValue;
     // If we can, terminate patchfinder64
     [self terminate_patchfinder64];
