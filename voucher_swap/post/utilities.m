@@ -29,8 +29,7 @@
 
 // Variables //
 
-static uint64_t SANDBOX = 0;
-static int SAVED_SET[3] = { 0, 0, 0 };
+static int SAVED_SET[2] = { 0, 0 };
 
 // Extract //
 
@@ -253,19 +252,6 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     return kernel_read64(kernel_read64(kernel_read64(proc + off_p_ucred) + off_ucred_cr_label) + off_sandbox_slot) != 0;
 }
 
-- (void)sandbox {
-    [self sandbox:[self selfproc]];
-}
-
-- (void)sandbox:(uint64_t)proc {
-    INFO("Sandboxed proc at 0x%llx", proc);
-    if ([self isSandboxed]) return;
-    uint64_t ucred = kernel_read64(proc + off_p_ucred);
-    uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
-    kernel_write64(cr_label + off_sandbox_slot, SANDBOX);
-    SANDBOX = 0;
-}
-
 - (void)unsandbox {
     [self unsandbox:[self selfproc]];
 }
@@ -275,7 +261,6 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     if (![self isSandboxed]) return;
     uint64_t ucred = kernel_read64(proc + off_p_ucred);
     uint64_t cr_label = kernel_read64(ucred + off_ucred_cr_label);
-    if (SANDBOX == 0) SANDBOX = kernel_read64(cr_label + off_sandbox_slot);
     kernel_write64(cr_label + off_sandbox_slot, 0);
 }
 
@@ -504,7 +489,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self injectTrustCache:@[@(path)]];
     struct stat s;
     stat(path, &s);
-    if (!(s.st_mode & S_IXUSR)) chmod(path, s.st_mode + S_IXUSR);
+    if (!(s.st_mode & S_IXUSR)) return -1;
     return posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
 
@@ -513,7 +498,7 @@ static int SAVED_SET[3] = { 0, 0, 0 };
     [self injectTrustCache:@[@(path)]];
     struct stat s;
     stat(path, &s);
-    if (!(s.st_mode & S_IXUSR)) chmod(path, s.st_mode + S_IXUSR);
+    if (!(s.st_mode & S_IXUSR)) return -1;
     return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }
 
@@ -649,13 +634,11 @@ static int SAVED_SET[3] = { 0, 0, 0 };
 - (void)save {
     SAVED_SET[0] = getuid();
     SAVED_SET[1] = getgid();
-    SAVED_SET[2] = [self isSandboxed];
 }
 
 - (void)restore {
     [self setUID:SAVED_SET[0]];
     [self setGID:SAVED_SET[1]];
-    SAVED_SET[2] ? [self sandbox] : [self unsandbox];
 }
 
 @end
